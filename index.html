@@ -1,362 +1,244 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VietCraft™ | Real-Time Batch Traceability & Compliance Portal</title>
-    <!-- Tailwind CSS -->
-    <script src="[suspicious link removed]"></script>
-    <!-- FontAwesome 6 Icons -->
-    <link rel="stylesheet" href="[suspicious link removed]">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="[suspicious link removed]">
-    <link rel="preconnect" href="[suspicious link removed]" crossorigin>
-    <link href="[suspicious link removed]" rel="stylesheet">
-    <!-- Leaflet.js Map CSS & JS -->
-    <link rel="stylesheet" href="[suspicious link removed]" />
-    <script src="[suspicious link removed]"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['"Playfair Display"', 'serif'],
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        cocoa: {
-                            800: '#3D2314',
-                            900: '#231209',
-                            gold: '#D4AF37',
-                            cream: '#FDFBF7'
-                        },
-                        emerald_custom: '#0F5257',
-                    }
-                }
-            }
-        }
-    </script>
+    <title>VietCraft™ | Real-Time Batch Traceability Portal</title>
     <style>
-        #map { height: 320px; border-radius: 1rem; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(10px);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #FDFBF7; color: #2D1810; padding-bottom: 40px; line-height: 1.5; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+        
+        /* Header */
+        .top-bar { background-color: #1A0C06; color: #D4AF37; text-align: center; padding: 8px; font-size: 12px; font-weight: 600; border-bottom: 1px solid rgba(212,175,55,0.3); }
+        header { background: linear-gradient(135deg, #2D1810 0%, #1A0C06 100%); color: #ffffff; padding: 28px 20px; border-radius: 16px; margin: 20px 0; border: 1px solid rgba(212,175,55,0.3); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .header-title { font-size: 24px; font-weight: 700; color: #FDFBF7; margin-bottom: 6px; }
+        .header-sub { font-size: 13px; color: #D1C7BD; }
+        .batch-badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(212,175,55,0.4); padding: 10px 14px; border-radius: 10px; display: inline-block; margin-top: 12px; }
+        .batch-id { font-family: monospace; font-size: 15px; font-weight: bold; color: #D4AF37; }
+        
+        /* Cards & Sections */
+        .card { background: #ffffff; border: 1px solid #E6E1DA; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F0ECE6; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .card-title { font-size: 16px; font-weight: 700; color: #2D1810; }
+        .tag { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+        .tag-green { background: #E6F4EA; color: #137333; border: 1px solid #CEEAD6; }
+        .tag-gold { background: #FEF7E0; color: #B06000; border: 1px solid #FDE293; }
+        
+        /* Grid & Flex */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .info-box { background: #F9F8F6; padding: 12px 14px; border-radius: 8px; border: 1px solid #EFECE6; font-size: 13px; }
+        .info-label { font-size: 11px; color: #7A6E65; text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+        .info-val { font-weight: 700; color: #2D1810; }
+        
+        /* Table */
+        .table-container { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background: #2D1810; color: #ffffff; padding: 10px 12px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #EFECE6; }
+        tr:hover { background-color: #FDFBF7; }
+        .status-pass { background: #E6F4EA; color: #137333; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-block; }
+        
+        /* Map Box */
+        .map-box { background: #EFECE6; height: 220px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed #C5BEB5; color: #5A4E44; padding: 16px; }
+        
+        /* Video Box */
+        .video-box { background: #000000; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; color: #ffffff; text-align: center; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Timeline */
+        .timeline { border-left: 2px solid #D4AF37; padding-left: 16px; margin-left: 8px; }
+        .timeline-item { margin-bottom: 16px; position: relative; }
+        .timeline-item::before { content: ''; width: 10px; height: 10px; background: #D4AF37; border-radius: 50%; position: absolute; left: -22px; top: 4px; }
+        .timeline-title { font-weight: 700; font-size: 13px; color: #2D1810; }
+        .timeline-desc { font-size: 12px; color: #6E6259; }
+
+        /* Button */
+        .btn { background: #2D1810; color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background: #4A2B1E; }
     </style>
 </head>
-<body class="bg-cocoa-cream text-stone-800 font-sans antialiased selection:bg-cocoa-gold selection:text-white pb-16">
+<body>
 
-    <!-- TOP ANNOUNCEMENT BAR -->
-    <div class="bg-cocoa-900 text-stone-300 text-[11px] py-1.5 px-4 text-center border-b border-cocoa-gold/30 flex justify-between items-center max-w-5xl mx-auto rounded-b-lg">
-        <span class="flex items-center gap-1.5 text-cocoa-gold font-medium">
-            <i class="fa-solid fa-shield-halved"></i> SWISS DDP COMPLIANT B2B PORTAL
-        </span>
-        <span class="hidden sm:inline text-stone-400">Target HS Code: 1804.0000 | GSP Tariff: 0% Duty</span>
-        <span class="font-mono text-emerald-400 font-semibold"><i class="fa-solid fa-circle text-[8px] animate-pulse"></i> LIVE VERIFIED</span>
+    <div class="top-bar">
+        SWISS DDP COMPLIANT B2B PORTAL • HS CODE: 1804.0000 • GSP TARIFF: 0%
     </div>
 
-    <!-- HEADER / BRAND BANNER -->
-    <header class="max-w-5xl mx-auto px-4 pt-6 pb-4">
-        <div class="bg-gradient-to-r from-cocoa-900 via-cocoa-800 to-cocoa-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-cocoa-gold/30">
-            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-cocoa-gold/10 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <div class="header-title">VietCraft™ Bio-Active Cocoa Switzerland</div>
+            <div class="header-sub">Real-Time Traceability & Compliance Passport (Ben Tre to Zurich)</div>
+            <div class="batch-badge">
+                <span style="font-size: 11px; color: #D1C7BD;">VERIFIED B2B BATCH:</span>
+                <div class="batch-id">VK-SK-2026-v1.0</div>
+            </div>
+        </header>
+
+        <!-- Section 1: GPS & EUDR -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">1. Ben Tre Farm Plot GPS Coordinates</div>
+                <span class="tag tag-green">EUDR Deforestation-Free</span>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <div class="info-box" style="margin-bottom: 10px;">
+                        <div class="info-label">Orchard Location</div>
+                        <div class="info-val">Châu Thành Agroforestry Plot #04</div>
+                        <div style="font-size: 12px; color: #6E6259;">Bến Tre Province, Mekong Delta, Vietnam</div>
+                    </div>
+                    <div class="info-box" style="margin-bottom: 10px;">
+                        <div class="info-label">GPS Geolocation</div>
+                        <div class="info-val" style="color: #0F5257; font-family: monospace;">10.2431° N, 106.3751° E</div>
+                        <div style="font-size: 12px; color: #6E6259;">Satellite Verified Mapped Plot</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Farming System</div>
+                        <div class="info-val">Organic Cacao-Coconut Canopy</div>
+                    </div>
+                </div>
+                <div class="map-box">
+                    <div style="font-size: 28px; margin-bottom: 6px;">📍</div>
+                    <div style="font-weight: 700; color: #2D1810; font-size: 14px;">Bến Tre Orchard Coordinates Mapped</div>
+                    <div style="font-size: 12px; color: #6E6259; margin-top: 4px;">10.2431° N, 106.3751° E</div>
+                    <div style="font-size: 11px; color: #137333; font-weight: 600; margin-top: 8px;">✓ EUDR Cutoff Date Compliant</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Laboratory CoA -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">2. Independent Laboratory Certificate of Analysis (CoA)</div>
+                <span class="tag tag-gold">ISO/IEC 17025 Certified</span>
+            </div>
             
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
-                <div>
-                    <span class="text-xs uppercase tracking-[0.25em] text-cocoa-gold font-semibold">VietCraft™ Bio-Active Cocoa Switzerland</span>
-                    <h1 class="text-2xl sm:text-4xl font-serif font-bold tracking-wide mt-1 text-stone-100">Batch Authenticity & Origin Passport</h1>
-                    <p class="text-xs sm:text-sm text-stone-300 mt-2 max-w-xl font-light leading-relaxed">
-                        Traceable unrefined cosmetic cocoa butter from Châu Thành, Bến Tre to Zurich Luxury Spas & Cosmeceutical Laboratories.
-                    </p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-xl border border-white/20 text-right min-w-[200px]">
-                    <p class="text-[10px] uppercase tracking-wider text-cocoa-gold font-semibold">Batch Identifier</p>
-                    <p class="text-base font-mono font-bold text-white mt-0.5">VK-SK-2026-v1.0</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                        Pilot B2B Sample Kit
-                    </span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- NAVIGATION TABS -->
-    <nav class="max-w-5xl mx-auto px-4 mb-6 sticky top-2 z-40">
-        <div class="bg-white/90 backdrop-blur-md p-1.5 rounded-xl shadow-md border border-stone-200/80 flex gap-1 overflow-x-auto text-xs font-medium text-stone-600">
-            <a href="#gps-section" class="flex-1 min-w-[120px] text-center py-2.5 px-3 rounded-lg hover:bg-cocoa-900 hover:text-white transition flex items-center justify-center gap-2 font-semibold">
-                <i class="fa-solid fa-location-dot text-emerald_custom"></i> 1. Farm GPS & EUDR
-            </a>
-            <a href="#coa-section" class="flex-1 min-w-[120px] text-center py-2.5 px-3 rounded-lg hover:bg-cocoa-900 hover:text-white transition flex items-center justify-center gap-2 font-semibold">
-                <i class="fa-solid fa-flask-vial text-cocoa-gold"></i> 2. Lab CoA Testing
-            </a>
-            <a href="#carbon-section" class="flex-1 min-w-[120px] text-center py-2.5 px-3 rounded-lg hover:bg-cocoa-900 hover:text-white transition flex items-center justify-center gap-2 font-semibold">
-                <i class="fa-solid fa-leaf text-emerald-600"></i> 3. Carbon Offset
-            </a>
-            <a href="#video-section" class="flex-1 min-w-[120px] text-center py-2.5 px-3 rounded-lg hover:bg-cocoa-900 hover:text-white transition flex items-center justify-center gap-2 font-semibold bg-cocoa-gold/10 text-cocoa-800">
-                <i class="fa-solid fa-circle-play text-cocoa-gold animate-bounce"></i> 4. Video & Audit Trail
-            </a>
-        </div>
-    </nav>
-
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="max-w-5xl mx-auto px-4 space-y-8">
-
-        <!-- 1. GPS FARM PLOT & EUDR COMPLIANCE -->
-        <section id="gps-section" class="glass-card rounded-2xl shadow-sm border border-stone-200/80 p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-stone-200">
-                <div>
-                    <span class="text-[10px] font-bold text-emerald_custom uppercase tracking-wider">EU Deforestation Regulation (EUDR) Ready</span>
-                    <h2 class="text-xl font-serif font-bold text-stone-900">1. Bến Tre Farm Plot GPS Coordinates</h2>
-                </div>
-                <span class="px-3 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-full border border-emerald-300">
-                    <i class="fa-solid fa-check-double mr-1"></i> Plot-Level Satellite Mapped
-                </span>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <div>Testing Lab: <strong>Eurofins / Euro-Tox Switzerland</strong></div>
+                <div>Report Ref: <strong style="font-family: monospace;">COA-2026-VK-88912</strong></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="space-y-3 md:col-span-1 text-xs">
-                    <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
-                        <p class="text-stone-500 font-medium">Orchard Origin</p>
-                        <p class="text-sm font-bold text-stone-900 mt-0.5">Châu Thành Agroforestry Plot #04</p>
-                        <p class="text-stone-600 mt-1">Bến Tre Province, Mekong Delta, Vietnam</p>
-                    </div>
-                    <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
-                        <p class="text-stone-500 font-medium">GPS Geolocation</p>
-                        <p class="text-sm font-mono font-bold text-emerald-800 mt-0.5">10.2431° N, 106.3751° E</p>
-                        <p class="text-stone-500 mt-1">Deforestation Cutoff: Post-2020 Compliant</p>
-                    </div>
-                    <div class="bg-cocoa-900 text-white p-3.5 rounded-xl border border-cocoa-gold/30">
-                        <p class="text-cocoa-gold text-[10px] font-semibold uppercase">Farming Method</p>
-                        <p class="text-xs font-medium mt-1">Shade-Grown Organic Intercropped Cocoa-Coconut Canopy</p>
-                    </div>
-                </div>
-
-                <!-- LEAFLET MAP -->
-                <div class="md:col-span-2">
-                    <div id="map" class="shadow-inner border border-stone-300"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. INDEPENDENT LABORATORY CoA REPORT -->
-        <section id="coa-section" class="glass-card rounded-2xl shadow-sm border border-stone-200/80 p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-stone-200">
-                <div>
-                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-wider">Independent Quality Verification</span>
-                    <h2 class="text-xl font-serif font-bold text-stone-900">2. Independent Laboratory Certificate of Analysis (CoA)</h2>
-                </div>
-                <div class="text-xs text-stone-500 font-mono">
-                    ISO/IEC 17025 Accredited Testing
-                </div>
-            </div>
-
-            <div class="bg-stone-50 p-4 rounded-xl border border-stone-200 mb-4 flex flex-wrap justify-between items-center gap-3 text-xs">
-                <div>
-                    <p class="text-stone-500">Certified Laboratory:</p>
-                    <p class="font-bold text-stone-900">Eurofins / Euro-Tox Switzerland & Quatest 3</p>
-                </div>
-                <div>
-                    <p class="text-stone-500">Report Reference:</p>
-                    <p class="font-mono font-bold text-stone-800">COA-2026-VK-88912</p>
-                </div>
-                <div>
-                    <p class="text-stone-500">Sample Type:</p>
-                    <p class="font-bold text-cocoa-800">Unrefined Cold-Pressed Cocoa Butter</p>
-                </div>
-            </div>
-
-            <!-- CoA TABLE -->
-            <div class="overflow-x-auto rounded-xl border border-stone-200 shadow-sm mb-4">
-                <table class="w-full text-xs text-left text-stone-700">
-                    <thead class="bg-cocoa-900 text-stone-100 uppercase tracking-wider text-[10px]">
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <th class="p-3.5">Technical Parameter</th>
-                            <th class="p-3.5">Target Specification</th>
-                            <th class="p-3.5">Batch Tested Result</th>
-                            <th class="p-3.5 text-center">Standard / Protocol</th>
-                            <th class="p-3.5 text-center">Status</th>
+                            <th>Parameter</th>
+                            <th>Target Spec</th>
+                            <th>Batch Result</th>
+                            <th>Testing Protocol</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-stone-200 bg-white">
-                        <tr class="hover:bg-stone-50">
-                            <td class="p-3.5 font-bold text-stone-900">Cadmium (Cd) Heavy Metal</td>
-                            <td class="p-3.5 text-stone-500">&lt; 0.10 mg/kg (Strict EU Limit)</td>
-                            <td class="p-3.5 font-mono font-bold text-emerald-700 bg-emerald-50/50">0.042 mg/kg</td>
-                            <td class="p-3.5 text-center text-stone-500 font-mono">ICP-MS (BS EN 13804)</td>
-                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cadmium (Cd)</strong></td>
+                            <td>&lt; 0.10 mg/kg (EU Limit)</td>
+                            <td style="font-family: monospace; font-weight: bold; color: #137333;">0.042 mg/kg</td>
+                            <td>ICP-MS (BS EN 13804)</td>
+                            <td><span class="status-pass">PASSED</span></td>
                         </tr>
-                        <tr class="hover:bg-stone-50">
-                            <td class="p-3.5 font-bold text-stone-900">Free Fatty Acids (FFA)</td>
-                            <td class="p-3.5 text-stone-500">&le; 1.0% (Cosmeceutical Grade)</td>
-                            <td class="p-3.5 font-mono font-bold text-emerald-700 bg-emerald-50/50">0.68%</td>
-                            <td class="p-3.5 text-center text-stone-500 font-mono">ISO 660 Titration</td>
-                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
+                        <tr>
+                            <td><strong>Free Fatty Acids (FFA)</strong></td>
+                            <td>&le; 1.0% (Cosmetic Grade)</td>
+                            <td style="font-family: monospace; font-weight: bold; color: #137333;">0.68%</td>
+                            <td>ISO 660 Titration</td>
+                            <td><span class="status-pass">PASSED</span></td>
                         </tr>
-                        <tr class="hover:bg-stone-50">
-                            <td class="p-3.5 font-bold text-stone-900">Slip Melting Point</td>
-                            <td class="p-3.5 text-stone-500">33.5°C – 35.5°C (Body Melt at 37°C)</td>
-                            <td class="p-3.5 font-mono font-bold text-emerald-700 bg-emerald-50/50">34.2°C</td>
-                            <td class="p-3.5 text-center text-stone-500 font-mono">ISO 6321 Tube Method</td>
-                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
+                        <tr>
+                            <td><strong>Slip Melting Point</strong></td>
+                            <td>33.5°C – 35.5°C (Body Melt)</td>
+                            <td style="font-family: monospace; font-weight: bold; color: #137333;">34.2°C</td>
+                            <td>ISO 6321 Tube Method</td>
+                            <td><span class="status-pass">PASSED</span></td>
                         </tr>
-                        <tr class="hover:bg-stone-50">
-                            <td class="p-3.5 font-bold text-stone-900">Processing & Natural Aroma</td>
-                            <td class="p-3.5 text-stone-500">Cold-Pressed / Unrefined / No Bleach</td>
-                            <td class="p-3.5 font-semibold text-cocoa-800 bg-amber-50/50">100% Rich Nutty Cocoa Aroma</td>
-                            <td class="p-3.5 text-center text-stone-500 font-mono">Organoleptic Spec</td>
-                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
+                        <tr>
+                            <td><strong>Extraction Method</strong></td>
+                            <td>Cold-Pressed / Unrefined</td>
+                            <td style="font-weight: 600;">100% Natural Aroma</td>
+                            <td>Organoleptic Spec</td>
+                            <td><span class="status-pass">PASSED</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="flex justify-between items-center">
-                <p class="text-[11px] text-stone-500 italic">*Full official laboratory dossier available for B2B client R&D audit upon request.</p>
-                <button onclick="downloadCoA()" class="bg-cocoa-900 hover:bg-cocoa-800 text-white font-medium text-xs px-4 py-2.5 rounded-lg shadow transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-arrow-down text-cocoa-gold"></i> Download Full PDF CoA Report
-                </button>
+            <div style="text-align: right; margin-top: 14px;">
+                <button class="btn" onclick="alert('Downloading Certified PDF CoA Report...')">📄 Download Certified PDF CoA</button>
             </div>
-        </section>
+        </div>
 
-        <!-- 3. CARBON FOOTPRINT OFFSET METRICS -->
-        <section id="carbon-section" class="glass-card rounded-2xl shadow-sm border border-stone-200/80 p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-stone-200">
+        <!-- Section 3: Carbon Footprint -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">3. Carbon Footprint & Offset Metrics</div>
+                <span class="tag tag-green">Net Carbon Negative</span>
+            </div>
+            <div class="grid-3 text-center">
+                <div class="info-box">
+                    <div class="info-label">Supply Chain Emission</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #2D1810; margin: 4px 0;">+1.82 kg</div>
+                    <div style="font-size: 10px; color: #7A6E65;">CO2e / kg cocoa butter</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">Agroforestry Sequestration</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #137333; margin: 4px 0;">-2.25 kg</div>
+                    <div style="font-size: 10px; color: #7A6E65;">Canopy absorption</div>
+                </div>
+                <div class="info-box" style="background: #E6F4EA; border-color: #CEEAD6;">
+                    <div class="info-label" style="color: #137333;">Net Carbon Impact</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #137333; margin: 4px 0;">-0.43 kg</div>
+                    <div style="font-size: 10px; color: #137333; font-weight: 600;">Climate Positive</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Video Proof & Timeline -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">4. Processing Video & Audit Trail</div>
+                <span class="tag tag-gold">Batch History</span>
+            </div>
+            
+            <div class="grid-2">
+                <div class="video-box">
+                    <div style="padding: 20px;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🎬</div>
+                        <div style="font-weight: 700; font-size: 14px;">Harvest & Cold Pressing Video</div>
+                        <div style="font-size: 12px; color: #A0958B; margin-top: 4px;">Châu Thành, Bến Tre Facility</div>
+                    </div>
+                </div>
+
                 <div>
-                    <span class="text-[10px] font-bold text-emerald_custom uppercase tracking-wider">Agroforestry & Sustainability Impact</span>
-                    <h2 class="text-xl font-serif font-bold text-stone-900">3. Carbon Footprint & Agroforestry Offset Metrics</h2>
-                </div>
-                <span class="px-3 py-1 bg-emerald-700 text-white font-bold text-xs rounded-full">
-                    <i class="fa-solid fa-seedling mr-1"></i> Net Carbon Negative Product
-                </span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-center">
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                    <p class="text-xs text-stone-500 font-medium">Supply Chain Carbon Footprint</p>
-                    <p class="text-2xl font-serif font-bold text-stone-800 mt-1">+1.82 <span class="text-xs font-sans font-normal text-stone-500">kg CO2e / kg</span></p>
-                    <p class="text-[10px] text-stone-400 mt-1">Includes Processing & SGN–ZRH Air Freight</p>
-                </div>
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                    <p class="text-xs text-stone-500 font-medium">Agroforestry Sequestration</p>
-                    <p class="text-2xl font-serif font-bold text-emerald-700 mt-1">-2.25 <span class="text-xs font-sans font-normal text-stone-500">kg CO2e / kg</span></p>
-                    <p class="text-[10px] text-stone-400 mt-1">Bến Tre Coconut-Cocoa Canopy Absorption</p>
-                </div>
-                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                    <p class="text-xs text-emerald-900 font-bold">Net Climate Impact</p>
-                    <p class="text-2xl font-serif font-bold text-emerald-800 mt-1">-0.43 <span class="text-xs font-sans font-normal text-emerald-700">kg CO2e / kg</span></p>
-                    <p class="text-[10px] text-emerald-800 font-semibold mt-1">Climate Positive Ingredient</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. PROCESS VIDEO PROOF & BATCH TIMELINE -->
-        <section id="video-section" class="glass-card rounded-2xl shadow-sm border border-stone-200/80 p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-stone-200">
-                <div>
-                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-wider">Visual Verification & Traceability Audit</span>
-                    <h2 class="text-xl font-serif font-bold text-stone-900">4. Processing Video & Supply Chain Audit Trail</h2>
-                </div>
-                <span class="text-xs bg-cocoa-900 text-cocoa-gold px-3 py-1 rounded-full font-mono font-semibold">
-                    <i class="fa-solid fa-video mr-1"></i> Video Proof Included
-                </span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                
-                <!-- EMBEDDED VIDEO PLAYER SECTION -->
-                <div class="bg-stone-900 rounded-xl overflow-hidden shadow-lg border border-stone-700 relative group">
-                    <div class="aspect-video relative flex items-center justify-center bg-black">
-                        <!-- Embedded HTML5 Video with fallback / placeholder -->
-                        <video id="process-video" controls class="w-full h-full object-cover" poster="[suspicious link removed]">
-                            <source src="[suspicious link removed]" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                    <div class="p-3 bg-cocoa-900 text-white flex justify-between items-center text-xs">
-                        <span class="font-medium flex items-center gap-1.5 text-stone-200">
-                            <i class="fa-solid fa-clapperboard text-cocoa-gold"></i> Bến Tre Harvest & Cold Pressing
-                        </span>
-                        <span class="text-[10px] text-stone-400">Duration: 0:45s</span>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-title">1. Harvesting & Fermentation</div>
+                            <div class="timeline-desc">Châu Thành Plot #04 • Batch Lot #01</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-title">2. Cold Pressing (Unrefined)</div>
+                            <div class="timeline-desc">Physical hydraulic extraction &lt; 45°C</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-title">3. Eurofins Lab Inspection</div>
+                            <div class="timeline-desc">Cadmium: 0.042 mg/kg | FFA: 0.68% (Passed)</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-title">4. Air Freight & Zurich Delivery</div>
+                            <div class="timeline-desc">SGN ➔ ZRH Flight | Swiss Customs Duty Free</div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- BATCH TIMELINE AUDIT -->
-                <div class="space-y-3 text-xs">
-                    <h3 class="font-bold text-stone-900 uppercase tracking-wider text-[11px]">Real-Time Batch Audit History</h3>
-                    <div class="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-300">
-                        
-                        <div class="relative">
-                            <span class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow"></span>
-                            <p class="font-bold text-stone-900">1. Pod Harvesting & Fermentation</p>
-                            <p class="text-stone-500">Châu Thành Agroforestry Plot #04 • Batch Lot #01</p>
-                        </div>
-
-                        <div class="relative">
-                            <span class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow"></span>
-                            <p class="font-bold text-stone-900">2. Hydraulic Cold Pressing (Unrefined)</p>
-                            <p class="text-stone-500">Physical Extraction at &lt; 45°C (Zero chemical refining)</p>
-                        </div>
-
-                        <div class="relative">
-                            <span class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow"></span>
-                            <p class="font-bold text-stone-900">3. Eurofins Lab Inspection (CoA Passed)</p>
-                            <p class="text-stone-500">Cadmium: 0.042 mg/kg | FFA: 0.68% | Melting Point: 34.2°C</p>
-                        </div>
-
-                        <div class="relative">
-                            <span class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-cocoa-gold border-2 border-white shadow animate-ping"></span>
-                            <span class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-cocoa-gold border-2 border-white shadow"></span>
-                            <p class="font-bold text-cocoa-800">4. Consolidated Air Freight & Zurich Delivery</p>
-                            <p class="text-stone-500">SGN ➔ ZRH Flight | Swiss Customs Duty Free (HS 1804.0000)</p>
-                        </div>
-
-                    </div>
-                </div>
-
             </div>
-        </section>
+        </div>
 
-    </main>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="max-w-5xl mx-auto px-4 mt-12 text-center text-xs text-stone-500 border-t border-stone-200/80 pt-6">
-        <p class="font-serif text-sm font-bold text-stone-800">VIETCRAFT™ BIO-ACTIVE COCOA SWITZERLAND</p>
-        <p class="mt-1">International Business Entrepreneurship Final Project | Group USAGI (Class K234081E)</p>
-        <p class="mt-0.5 text-stone-400">Instructor: Dr. Tran My Linh | Faculty of International Business, UEL</p>
+    <footer style="text-align: center; font-size: 12px; color: #7A6E65; margin-top: 30px;">
+        © 2026 VietCraft™ Bio-Active Cocoa Switzerland | Group USAGI (K234081E - UEL)
     </footer>
 
-    <!-- JS SCRIPTS -->
-    <script>
-        // LEAFLET MAP INITIALIZATION
-        const bentreLat = 10.2431;
-        const bentreLng = 106.3751;
-        
-        const map = L.map('map', {
-            center: [bentreLat, bentreLng],
-            zoom: 13,
-            zoomControl: true
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap contributors | EUDR GPS Traceability'
-        }).addTo(map);
-
-        // Custom Marker
-        const marker = L.marker([bentreLat, bentreLng]).addTo(map);
-        marker.bindPopup(`
-            <div style="font-family: sans-serif; font-size: 12px;">
-                <b style="color: #3D2314;">VietCraft™ Orchard Plot #04</b><br>
-                Châu Thành, Bến Tre, Vietnam<br>
-                <span style="color: #0F5257; font-weight: bold;">GPS: 10.2431° N, 106.3751° E</span><br>
-                <small>EUDR Deforestation-Free Mapped</small>
-            </div>
-        `).openPopup();
-
-        // Download CoA Handler Simulation
-        function downloadCoA() {
-            alert("📄 [VietCraft™ B2B Portal]\nDownloading Certified Official PDF CoA Report (COA-2026-VK-88912.pdf)...\n\n• Cadmium: 0.042 mg/kg (Passed)\n• FFA: 0.68% (Passed)\n• Melting Point: 34.2°C (Passed)");
-        }
-    </script>
 </body>
 </html>
