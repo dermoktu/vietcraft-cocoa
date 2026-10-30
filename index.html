@@ -48,7 +48,7 @@
         }
     </script>
 
-    <!-- EMBEDDED STYLES (Đảm bảo màu sắc luôn hiển thị dù mạng yếu) -->
+    <!-- EMBEDDED STYLES (Đảm bảo màu sắc hiển thị tức thì) -->
     <style>
         :root {
             --bg-cream: #FDFBF7;
@@ -87,8 +87,8 @@
         }
 
         .modal-backdrop {
-            background: rgba(26, 12, 6, 0.8);
-            backdrop-filter: blur(6px);
+            background: rgba(26, 12, 6, 0.85);
+            backdrop-filter: blur(8px);
         }
 
         .pulse-dot {
@@ -165,8 +165,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Mockup 1: Raw Butter Jar -->
                 <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 text-center hover:border-cocoa-gold transition">
-                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative group">
-                        <img src="mockup-jar.png" alt="Cosmetic Cocoa Butter Jar" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 img-fallback" data-label="mockup-jar.png" data-title="Raw Cosmetic Butter Jar (250g)">
+                    <div class="aspect-square rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative bg-stone-900">
+                        <img src="mockup-jar.png" alt="Cosmetic Cocoa Butter Jar" class="w-full h-full object-cover img-fallback" data-label="mockup-jar.png" data-title="Raw Cosmetic Butter Jar (250g)">
                     </div>
                     <h3 class="text-xs font-bold text-stone-900">Raw Cosmetic Butter Jar (250g)</h3>
                     <p class="text-[11px] text-stone-500 mt-0.5">Amber Glass • UV Protective • Airtight Seal</p>
@@ -174,8 +174,8 @@
 
                 <!-- Mockup 2: Massage Candle Bar -->
                 <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 text-center hover:border-cocoa-gold transition">
-                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative group">
-                        <img src="mockup-candle.png" alt="Warm Massage Candle Bar" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 img-fallback" data-label="mockup-candle.png" data-title="Warm Bio-Active Candle Bar (100g)">
+                    <div class="aspect-square rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative bg-stone-900">
+                        <img src="mockup-candle.png" alt="Warm Massage Candle Bar" class="w-full h-full object-cover img-fallback" data-label="mockup-candle.png" data-title="Warm Bio-Active Candle Bar (100g)">
                     </div>
                     <h3 class="text-xs font-bold text-stone-900">Warm Bio-Active Candle Bar (100g)</h3>
                     <p class="text-[11px] text-stone-500 mt-0.5">Low Melting Point 34.2°C • Body Temp Pour</p>
@@ -183,8 +183,8 @@
 
                 <!-- Mockup 3: Outer Packaging -->
                 <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 text-center hover:border-cocoa-gold transition">
-                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative group">
-                        <img src="packaging.png" alt="B2B Sample Kit Packaging" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 img-fallback" data-label="packaging.png" data-title="B2B Outer Packaging & QR Label">
+                    <div class="aspect-square rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative bg-stone-900">
+                        <img src="packaging.png" alt="B2B Sample Kit Packaging" class="w-full h-full object-cover img-fallback" data-label="packaging.png" data-title="B2B Outer Packaging & QR Label">
                     </div>
                     <h3 class="text-xs font-bold text-stone-900">B2B Outer Packaging & QR Label</h3>
                     <p class="text-[11px] text-stone-500 mt-0.5">Eco Craft Box • Batch QR Verification Code</p>
@@ -196,7 +196,7 @@
         <section class="glass-card p-6">
             <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
                 <div>
-                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest"><i class="fa-solid fa-shield-virus mr-1"></i> Live Verification Query</span>
+                    <span class="text-[10px] font-bold text-emerald_custom uppercase tracking-widest"><i class="fa-solid fa-shield-virus mr-1"></i> Live Verification Query</span>
                     <h2 class="text-lg font-serif font-bold text-stone-900">2. Real-Time Batch Verification Search</h2>
                 </div>
                 <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300">
@@ -204,7 +204,7 @@
                 </span>
             </div>
 
-            <p class="text-xs text-stone-600 mb-4">Enter the unique 12-digit Batch ID printed on your Jar or Candle Bar QR Label to verify authenticity & CoA parameters:</p>
+            <p class="text-xs text-stone-600 mb-4">Enter the unique Batch ID printed on your Jar or Candle Bar QR Label to verify authenticity & CoA parameters:</p>
 
             <div class="flex gap-2 max-w-lg">
                 <input type="text" id="batchInput" value="VK-SK-2026-v1.0" class="flex-1 px-4 py-2.5 text-sm border-2 border-stone-300 rounded-xl focus:outline-none focus:border-cocoa-gold font-mono font-bold text-stone-800 uppercase shadow-inner">
@@ -231,7 +231,7 @@
         <section class="glass-card p-6">
             <div class="flex justify-between items-center mb-4 flex-wrap gap-2 border-b border-stone-200 pb-3">
                 <div>
-                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest"><i class="fa-solid fa-map-location-dot mr-1"></i> EUDR GPS Traceability</span>
+                    <span class="text-[10px] font-bold text-emerald_custom uppercase tracking-widest"><i class="fa-solid fa-map-location-dot mr-1"></i> EUDR GPS Traceability</span>
                     <h2 class="text-lg font-serif font-bold text-stone-900">3. Supply Chain Geolocation (Origin & Destination Hub)</h2>
                 </div>
                 <span class="text-xs bg-cocoa-900 text-cocoa-gold font-bold px-3 py-1 rounded-full border border-cocoa-gold/30">
@@ -404,7 +404,7 @@
         <section class="glass-card p-6">
             <div class="flex justify-between items-center mb-4 border-b border-stone-200 pb-3 flex-wrap gap-2">
                 <div>
-                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest"><i class="fa-solid fa-leaf mr-1"></i> Agroforestry Sustainability</span>
+                    <span class="text-[10px] font-bold text-emerald_custom uppercase tracking-widest"><i class="fa-solid fa-leaf mr-1"></i> Agroforestry Sustainability</span>
                     <h2 class="text-lg font-serif font-bold text-stone-900">7. Carbon Footprint & Climate Positive Metrics</h2>
                 </div>
                 <span class="px-3 py-1 bg-emerald-700 text-white font-bold text-xs rounded-full shadow-sm">
@@ -601,11 +601,11 @@
                     var label = this.getAttribute('data-label') || 'Image';
                     var title = this.getAttribute('data-title') || 'Product Mockup';
                     if (this.parentElement) {
-                        this.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-stone-900 via-cocoa-900 to-stone-900 text-white p-4 flex flex-col items-center justify-center text-center rounded-lg shadow-inner">' +
-                            '<div class="w-12 h-12 rounded-full bg-cocoa-gold/20 text-cocoa-gold flex items-center justify-center text-2xl mb-2 border border-cocoa-gold/40">' +
+                        this.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 text-white p-4 flex flex-col items-center justify-center text-center rounded-lg shadow-inner">' +
+                            '<div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-2 border border-amber-400/40">' +
                             '<i class="fa-solid fa-box font-bold"></i>' +
                             '</div>' +
-                            '<p class="text-xs font-bold text-cocoa-gold">' + title + '</p>' +
+                            '<p class="text-xs font-bold text-amber-300">' + title + '</p>' +
                             '<p class="text-[10px] text-stone-300 mt-1">Upload <b>' + label + '</b> to GitHub</p>' +
                             '</div>';
                     }
