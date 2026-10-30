@@ -48,6 +48,7 @@
         };
     </script>
 
+    <!-- PURE CSS FALLBACK -->
     <style>
         body {
             background-color: #FDFBF7 !important;
@@ -65,7 +66,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .b2b-card:hover {
-            box-shadow: 0 20px 35px -10px rgba(26, 12, 6, 0.1);
+            box-shadow: 0 20px 35px -10px rgba(26, 12, 6, 0.08);
             border-color: #D4AF37;
         }
         #map {
@@ -290,45 +291,63 @@
             <div id="map" class="shadow-md"></div>
         </section>
 
-        <!-- SECTION 5: TRÌNH CHIẾU VIDEO LOCAL (HTML5 VIDEO PLAYER) -->
+        <!-- SECTION 5: TRÌNH CHIẾU VIDEO MULTI-MODE (YOUTUBE & LOCAL MP4) -->
         <section id="video-section" class="b2b-card p-6">
             <div class="flex justify-between items-center mb-3 flex-wrap gap-2 border-b border-stone-200 pb-3">
                 <div>
                     <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-widest"><i class="fa-solid fa-circle-play mr-1"></i> Visual Supply Chain Audit</span>
                     <h2 class="text-lg font-serif font-bold text-stone-900">5. Production Process Video & Visual Proof</h2>
                 </div>
-                <span class="text-xs bg-stone-100 text-stone-700 font-semibold px-3 py-1 rounded-full border border-stone-300">
-                    4 Local Video Chapters
-                </span>
+                
+                <!-- Toggle Mode Player -->
+                <div class="flex gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs font-bold">
+                    <button id="btnModeYoutube" onclick="setPlayerMode('youtube')" class="px-3 py-1 rounded-lg bg-cocoa-900 text-cocoa-gold shadow transition">
+                        <i class="fa-brands fa-youtube mr-1"></i> YouTube Mode
+                    </button>
+                    <button id="btnModeLocal" onclick="setPlayerMode('local')" class="px-3 py-1 rounded-lg text-stone-600 hover:text-stone-900 transition">
+                        <i class="fa-solid fa-file-video mr-1"></i> Local MP4 Mode
+                    </button>
+                </div>
             </div>
 
-            <p class="text-xs text-stone-600 mb-4">Click any chapter tab below to play local MP4 video files:</p>
+            <p class="text-xs text-stone-600 mb-4">Click any video chapter tab below to view harvest, cold-pressing, and lab formulation footage:</p>
 
-            <!-- Local Video Chapter Tabs -->
+            <!-- Video Chapter Tabs -->
             <div class="flex gap-2 overflow-x-auto pb-2 mb-4 text-xs font-bold">
-                <button onclick="switchVideo('video-harvest-bentre.mp4', 'Nông hộ & Thu hoạch Cacao Bến Tre', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-cocoa-900 text-cocoa-gold shadow transition flex items-center gap-1.5 whitespace-nowrap border border-cocoa-gold/30">
+                <button onclick="switchChapter(0, this)" class="vid-tab px-4 py-2.5 rounded-xl bg-cocoa-900 text-cocoa-gold shadow transition flex items-center gap-1.5 whitespace-nowrap border border-cocoa-gold/30">
                     🌱 1. Thu hoạch Bến Tre
                 </button>
-                <button onclick="switchVideo('video-cold-press.mp4', 'Quy trình Ép lạnh thô (Cold-pressed Cocoa Butter)', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
+                <button onclick="switchChapter(1, this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
                     💧 2. Ép lạnh thô
                 </button>
-                <button onclick="switchVideo('video-candle-spa.mp4', 'Nến bơ Massage & Spa cao cấp (B2B Prototype)', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
+                <button onclick="switchChapter(2, this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
                     🕯️ 3. Nến Bơ Spa
                 </button>
-                <button onclick="switchVideo('video-cosmetic-lab.mp4', 'Phòng Lab Mỹ phẩm & Công thức Cream Olivem 1000', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
+                <button onclick="switchChapter(3, this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
                     🔬 4. Lab Mỹ Phẩm
                 </button>
             </div>
 
-            <!-- HTML5 Video Player Container -->
-            <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-xl relative border border-stone-800">
+            <!-- Video Container (YouTube iFrame) -->
+            <div id="youtubeContainer" class="aspect-video bg-black rounded-xl overflow-hidden shadow-xl relative border border-stone-800">
+                <iframe id="youtubeIframe" class="w-full h-full border-0" 
+                    src="[suspicious link removed]" 
+                    title="VietCraft Production Process" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- Video Container (Local MP4 Player - Hidden by Default) -->
+            <div id="localContainer" class="aspect-video bg-black rounded-xl overflow-hidden shadow-xl relative border border-stone-800 hidden">
                 <video id="localVideoPlayer" class="w-full h-full object-cover" controls poster="mockup-jar.png">
                     <source src="video-harvest-bentre.mp4" type="video/mp4">
-                    Trình duyệt của bạn không hỗ trợ phát video trực tiếp.
+                    Trình duyệt của bạn không hỗ trợ phát video MP4 trực tiếp.
                 </video>
             </div>
+
             <p id="videoTitleDisplay" class="text-xs text-stone-700 font-semibold mt-3 italic text-center bg-stone-50 py-2.5 rounded-xl border border-stone-200">
-                📹 Đang phát: <strong>Nông hộ & Thu hoạch Cacao Bến Tre (video-harvest-bentre.mp4)</strong>
+                📹 Đang phát: <strong>Nông hộ & Thu hoạch Cacao Bến Tre</strong>
             </p>
         </section>
 
@@ -390,9 +409,14 @@
 
             <div class="flex justify-between items-center flex-wrap gap-2">
                 <p class="text-[11px] text-stone-500 italic">*Report Reference: COA-2026-VK-88912 | ISO 17025 Accredited</p>
-                <button onclick="openCoAModal()" class="bg-cocoa-900 hover:bg-cocoa-800 text-cocoa-gold font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 border border-cocoa-gold/30">
-                    <i class="fa-solid fa-file-contract"></i> View Official Cert CoA Modal
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="openCoAModal()" class="bg-cocoa-900 hover:bg-cocoa-800 text-cocoa-gold font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 border border-cocoa-gold/30">
+                        <i class="fa-solid fa-file-contract"></i> View Official Cert CoA Modal
+                    </button>
+                    <button onclick="openInquiryModal()" class="bg-emerald_custom hover:bg-emerald_custom-dark text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Request B2B Sample Kit
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -522,13 +546,54 @@
         </div>
     </div>
 
+    <!-- B2B SAMPLE INQUIRY MODAL POPUP -->
+    <div id="inquiryModal" class="fixed inset-0 modal-bg hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border-2 border-emerald_custom/50 relative">
+            <button onclick="closeInquiryModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-800 text-lg font-bold">✕</button>
+            
+            <div class="text-center border-b border-stone-200 pb-3 mb-4">
+                <span class="text-xs font-bold text-emerald_custom uppercase">Swiss B2B Direct Portal</span>
+                <h3 class="text-lg font-serif font-bold text-stone-900 mt-1">Request Pilot Sample Kit</h3>
+                <p class="text-xs text-stone-500">Free 250g Jar + 100g Candle Bar Sample for Zurich Labs & Spas</p>
+            </div>
+
+            <form onsubmit="handleInquirySubmit(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-stone-700 font-bold mb-1">Company / Laboratory Name *</label>
+                    <input type="text" required placeholder="e.g. Zurich Bio-Cosmetics Lab" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald_custom">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-stone-700 font-bold mb-1">Contact Person *</label>
+                        <input type="text" required placeholder="Dr. / Mr. / Ms." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald_custom">
+                    </div>
+                    <div>
+                        <label class="block text-stone-700 font-bold mb-1">Business Email *</label>
+                        <input type="email" required placeholder="lab@domain.ch" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald_custom">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-stone-700 font-bold mb-1">Estimated Pilot Lot Requirement</label>
+                    <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-emerald_custom">
+                        <option>10 kg - 50 kg (R&D Lab Testing)</option>
+                        <option>50 kg - 200 kg (Spa Pilot Lot)</option>
+                        <option>> 200 kg (Commercial B2B Order)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-emerald_custom hover:bg-emerald_custom-dark text-white font-bold rounded-lg shadow transition mt-2">
+                    Submit Sample Request
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="max-w-5xl mx-auto px-4 mt-8 text-center text-xs text-stone-500">
         <p class="font-serif font-bold text-stone-800 text-sm">VIETCRAFT™ BIO-ACTIVE COCOA SWITZERLAND</p>
         <p class="mt-1">International Business Entrepreneurship Final Project | Group USAGI (UEL)</p>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC (Sạch 100% Syntax Error) -->
+    <!-- JAVASCRIPT LOGIC (SẠCH 100% CÚ PHÁP) -->
     <script>
         // Modal Handlers
         function openCoAModal() {
@@ -538,6 +603,20 @@
         function closeCoAModal() {
             var m = document.getElementById('coaModal');
             if (m) m.classList.add('hidden');
+        }
+
+        function openInquiryModal() {
+            var m = document.getElementById('inquiryModal');
+            if (m) m.classList.remove('hidden');
+        }
+        function closeInquiryModal() {
+            var m = document.getElementById('inquiryModal');
+            if (m) m.classList.add('hidden');
+        }
+        function handleInquirySubmit(e) {
+            e.preventDefault();
+            alert('Thank you! Your Sample Kit Request has been dispatched to VietCraft Swiss Desk.');
+            closeInquiryModal();
         }
 
         // Live Zurich Clock
@@ -551,18 +630,40 @@
         }
         setInterval(updateClock, 1000);
 
-        // Local Video Switcher
-        function switchVideo(videoSrc, title, btnElement) {
-            var videoPlayer = document.getElementById('localVideoPlayer');
-            var titleEl = document.getElementById('videoTitleDisplay');
-            if (videoPlayer) {
-                videoPlayer.src = videoSrc;
-                videoPlayer.load();
-                videoPlayer.play().catch(function(e) { console.log('Autoplay info:', e); });
+        // Video Chapters Data
+        var videoChapters = [
+            { title: 'Nông hộ & Thu hoạch Cacao Bến Tre', yt: '7RImpHjqx8E', mp4: 'video-harvest-bentre.mp4' },
+            { title: 'Quy trình Ép lạnh thô (Cold-pressed Cocoa Butter)', yt: 'jFp2QUCd15c', mp4: 'video-cold-press.mp4' },
+            { title: 'Nến bơ Massage & Spa cao cấp (B2B Prototype)', yt: '95TPTkvFS9o', mp4: 'video-candle-spa.mp4' },
+            { title: 'Phòng Lab Mỹ phẩm & Công thức Cream Olivem 1000', yt: 'Zo44X-K-sKs', mp4: 'video-cosmetic-lab.mp4' }
+        ];
+
+        var currentChapter = 0;
+        var currentPlayerMode = 'youtube'; // 'youtube' or 'local'
+
+        function setPlayerMode(mode) {
+            currentPlayerMode = mode;
+            var ytBox = document.getElementById('youtubeContainer');
+            var localBox = document.getElementById('localContainer');
+            var btnYt = document.getElementById('btnModeYoutube');
+            var btnLocal = document.getElementById('btnModeLocal');
+
+            if (mode === 'youtube') {
+                if (ytBox) ytBox.classList.remove('hidden');
+                if (localBox) localBox.classList.add('hidden');
+                if (btnYt) { btnYt.className = "px-3 py-1 rounded-lg bg-cocoa-900 text-cocoa-gold shadow transition"; }
+                if (btnLocal) { btnLocal.className = "px-3 py-1 rounded-lg text-stone-600 hover:text-stone-900 transition"; }
+            } else {
+                if (ytBox) ytBox.classList.add('hidden');
+                if (localBox) localBox.classList.remove('hidden');
+                if (btnLocal) { btnLocal.className = "px-3 py-1 rounded-lg bg-cocoa-900 text-cocoa-gold shadow transition"; }
+                if (btnYt) { btnYt.className = "px-3 py-1 rounded-lg text-stone-600 hover:text-stone-900 transition"; }
             }
-            if (titleEl) {
-                titleEl.innerHTML = '📹 Đang phát: <strong>' + title + ' (' + videoSrc + ')</strong>';
-            }
+            updateVideoSource();
+        }
+
+        function switchChapter(index, btnElement) {
+            currentChapter = index;
             var tabs = document.querySelectorAll('.vid-tab');
             for (var i = 0; i < tabs.length; i++) {
                 tabs[i].classList.remove('bg-cocoa-900', 'text-cocoa-gold');
@@ -571,6 +672,26 @@
             if (btnElement) {
                 btnElement.classList.remove('bg-stone-100', 'text-stone-700');
                 btnElement.classList.add('bg-cocoa-900', 'text-cocoa-gold');
+            }
+            updateVideoSource();
+        }
+
+        function updateVideoSource() {
+            var ch = videoChapters[currentChapter];
+            var titleEl = document.getElementById('videoTitleDisplay');
+            
+            if (currentPlayerMode === 'youtube') {
+                var iframe = document.getElementById('youtubeIframe');
+                if (iframe) iframe.src = '[suspicious link removed]' + ch.yt + '?autoplay=1&rel=0';
+                if (titleEl) titleEl.innerHTML = '📹 Đang phát (YouTube): <strong>' + ch.title + '</strong>';
+            } else {
+                var player = document.getElementById('localVideoPlayer');
+                if (player) {
+                    player.src = ch.mp4;
+                    player.load();
+                    player.play().catch(function(e){ console.log(e); });
+                }
+                if (titleEl) titleEl.innerHTML = '📹 Đang phát (File MP4): <strong>' + ch.title + ' (' + ch.mp4 + ')</strong>';
             }
         }
 
@@ -642,7 +763,7 @@
                 }
             }
 
-            // Chart 1: Unit Economics
+            // Chart 1: Unit Economics Breakdown
             var unitCtx = document.getElementById('unitChart');
             if (unitCtx && typeof Chart !== 'undefined') {
                 try {
@@ -652,7 +773,9 @@
                             labels: ['COGS ($14)', 'Freight & Customs ($8)', 'Margin ($10)'],
                             datasets: [{
                                 data: [14, 8, 10],
-                                backgroundColor: ['#1A0C06', '#0F5257', '#D4AF37']
+                                backgroundColor: ['#1A0C06', '#0F5257', '#D4AF37'],
+                                borderWidth: 2,
+                                borderColor: '#ffffff'
                             }]
                         },
                         options: {
@@ -665,7 +788,7 @@
                 }
             }
 
-            // Chart 2: Cadmium Level
+            // Chart 2: Cadmium Safety Level
             var cadmiumCtx = document.getElementById('cadmiumChart');
             if (cadmiumCtx && typeof Chart !== 'undefined') {
                 try {
