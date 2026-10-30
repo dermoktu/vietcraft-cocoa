@@ -28,7 +28,7 @@
         }
     </script>
     <style>
-        #map { height: 350px; border-radius: 0.75rem; }
+        #map { height: 350px; border-radius: 0.75rem; z-index: 1; }
     </style>
 </head>
 <body class="bg-stone-100 text-stone-800 font-sans antialiased pb-12">
@@ -84,7 +84,7 @@
                 <!-- Mockup 1: Hũ Bơ Cacao 250g -->
                 <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
                     <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-2 shadow-inner flex items-center justify-center relative">
-                        <img src="mockup-jar.png" alt="Cosmetic Cocoa Butter Jar" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\"p-4 text-xs text-stone-400\"><i class=\"fa-regular fa-image text-2xl mb-1 block\"></i>Upload file <b>mockup-jar.png</b> lên GitHub</div>';">
+                        <img src="mockup-jar.png" alt="Cosmetic Cocoa Butter Jar" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-stone-400\'><i class=\'fa-regular fa-image text-2xl mb-1 block\'></i>Upload file <b>mockup-jar.png</b> lên GitHub</div>';">
                     </div>
                     <p class="text-xs font-bold text-stone-900">Raw Cosmetic Butter Jar (250g)</p>
                     <p class="text-[11px] text-stone-500">Amber Glass • UV Protective</p>
@@ -93,7 +93,7 @@
                 <!-- Mockup 2: Thỏi Nến Massage Bơ Cacao 100g -->
                 <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
                     <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-2 shadow-inner flex items-center justify-center relative">
-                        <img src="mockup-candle.png" alt="Warm Massage Candle Bar" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\"p-4 text-xs text-stone-400\"><i class=\"fa-regular fa-image text-2xl mb-1 block\"></i>Upload file <b>mockup-candle.png</b> lên GitHub</div>';">
+                        <img src="mockup-candle.png" alt="Warm Massage Candle Bar" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-stone-400\'><i class=\'fa-regular fa-image text-2xl mb-1 block\'></i>Upload file <b>mockup-candle.png</b> lên GitHub</div>';">
                     </div>
                     <p class="text-xs font-bold text-stone-900">Warm Bio-Active Candle Bar (100g)</p>
                     <p class="text-[11px] text-stone-500">Melt at 37°C Body Temp</p>
@@ -102,7 +102,7 @@
                 <!-- Mockup 3: Bao bì Hộp B2B Sample Kit -->
                 <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
                     <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-2 shadow-inner flex items-center justify-center relative">
-                        <img src="packaging.png" alt="B2B Sample Kit Box" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\"p-4 text-xs text-stone-400\"><i class=\"fa-regular fa-image text-2xl mb-1 block\"></i>Upload file <b>packaging.png</b> lên GitHub</div>';">
+                        <img src="packaging.png" alt="B2B Sample Kit Box" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-stone-400\'><i class=\'fa-regular fa-image text-2xl mb-1 block\'></i>Upload file <b>packaging.png</b> lên GitHub</div>';">
                     </div>
                     <p class="text-xs font-bold text-stone-900">B2B Outer Packaging & QR Label</p>
                     <p class="text-[11px] text-stone-500">Eco-Friendly Unbleached Craft Box</p>
@@ -347,29 +347,42 @@
         function updateClock() {
             const now = new Date();
             const options = { timeZone: 'Europe/Zurich', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            document.getElementById('live-clock').innerText = 'Zurich Time (CET): ' + now.toLocaleString('en-GB', options);
+            const clockEl = document.getElementById('live-clock');
+            if (clockEl) {
+                clockEl.innerText = 'Zurich Time (CET): ' + now.toLocaleString('en-GB', options);
+            }
         }
         setInterval(updateClock, 1000);
         updateClock();
 
         // 2. Chuyển đổi Video YouTube
         function switchVideo(videoId, title, btnElement) {
-            document.getElementById('youtubeIframe').src = '[suspicious link removed]' + videoId + '?autoplay=1&rel=0';
-            document.getElementById('videoTitleDisplay').innerHTML = '📹 Đang phát: <strong>' + title + '</strong>';
+            const iframe = document.getElementById('youtubeIframe');
+            const titleEl = document.getElementById('videoTitleDisplay');
+            if (iframe) {
+                iframe.src = '[suspicious link removed]' + videoId + '?autoplay=1&rel=0';
+            }
+            if (titleEl) {
+                titleEl.innerHTML = '📹 Đang phát: <strong>' + title + '</strong>';
+            }
             
             const tabs = document.querySelectorAll('.vid-tab');
             tabs.forEach(tab => {
                 tab.classList.remove('bg-cocoa-900', 'text-white', 'shadow');
                 tab.classList.add('bg-stone-100', 'text-stone-700');
             });
-            btnElement.classList.remove('bg-stone-100', 'text-stone-700');
-            btnElement.classList.add('bg-cocoa-900', 'text-white', 'shadow');
+            if (btnElement) {
+                btnElement.classList.remove('bg-stone-100', 'text-stone-700');
+                btnElement.classList.add('bg-cocoa-900', 'text-white', 'shadow');
+            }
         }
 
         // 3. Check Batch Search Giả lập
         function checkBatch() {
-            const input = document.getElementById('batchInput').value.trim();
+            const inputEl = document.getElementById('batchInput');
             const resultDiv = document.getElementById('searchResult');
+            if (!inputEl || !resultDiv) return;
+            const input = inputEl.value.trim();
             
             resultDiv.innerHTML = '<div class="text-center py-4 text-cocoa-gold font-bold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Querying Eurofins Lab & BAZG Customs Database...</div>';
             
@@ -395,61 +408,71 @@
             }, 600);
         }
 
-        // 4. Bản đồ Leaflet Map 2 Đầu (Bến Tre ➔ Zurich)
-        const benTreCoords = [10.2431, 106.3751];
-        const zurichCoords = [47.3698, 8.5391];
+        // 4. Khởi tạo sau khi DOM sẵn sàng (Bản đồ + Biểu đồ)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Leaflet Map 2 Đầu
+            const benTreCoords = [10.2431, 106.3751];
+            const zurichCoords = [47.3698, 8.5391];
 
-        const map = L.map('map').setView([25.0, 60.0], 2);
+            if (document.getElementById('map')) {
+                const map = L.map('map').setView([25.0, 60.0], 2);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
 
-        const benTreMarker = L.marker(benTreCoords).addTo(map);
-        benTreMarker.bindPopup("<b>📍 Origin: Bến Tre Orchard Plot #04</b><br>Harvest & Cold Pressing").openPopup();
+                const benTreMarker = L.marker(benTreCoords).addTo(map);
+                benTreMarker.bindPopup("<b>📍 Origin: Bến Tre Orchard Plot #04</b><br>Harvest & Cold Pressing").openPopup();
 
-        const zurichMarker = L.marker(zurichCoords).addTo(map);
-        zurichMarker.bindPopup("<b>🏢 Destination: Zurich Hub</b><br>Luxury Spas & Cosmeceutical Labs");
+                const zurichMarker = L.marker(zurichCoords).addTo(map);
+                zurichMarker.bindPopup("<b>🏢 Destination: Zurich Hub</b><br>Luxury Spas & Cosmeceutical Labs");
 
-        L.polyline([benTreCoords, zurichCoords], {
-            color: '#D4AF37',
-            weight: 3,
-            dashArray: '6, 8'
-        }).addTo(map);
-
-        // 5. Biểu đồ Chart.js
-        // Chart 1: Unit Economics
-        new Chart(document.getElementById('unitChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['COGS & Pressing ($14)', 'Freight & Customs ($8)', 'Margin ($10)'],
-                datasets: [{
-                    data: [14, 8, 10],
-                    backgroundColor: ['#231209', '#0F5257', '#D4AF37']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
+                L.polyline([benTreCoords, zurichCoords], {
+                    color: '#D4AF37',
+                    weight: 3,
+                    dashArray: '6, 8'
+                }).addTo(map);
             }
-        });
 
-        // Chart 2: Cadmium Level
-        new Chart(document.getElementById('cadmiumChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Strict EU Limit', 'VietCraft Measured'],
-                datasets: [{
-                    label: 'Cadmium Level (mg/kg)',
-                    data: [0.10, 0.042],
-                    backgroundColor: ['#EF4444', '#10B981']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, max: 0.12 } }
+            // Chart 1: Unit Economics
+            const unitCtx = document.getElementById('unitChart');
+            if (unitCtx) {
+                new Chart(unitCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['COGS & Pressing ($14)', 'Freight & Customs ($8)', 'Margin ($10)'],
+                        datasets: [{
+                            data: [14, 8, 10],
+                            backgroundColor: ['#231209', '#0F5257', '#D4AF37']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
+                    }
+                });
+            }
+
+            // Chart 2: Cadmium Level
+            const cadmiumCtx = document.getElementById('cadmiumChart');
+            if (cadmiumCtx) {
+                new Chart(cadmiumCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Strict EU Limit', 'VietCraft Measured'],
+                        datasets: [{
+                            label: 'Cadmium Level (mg/kg)',
+                            data: [0.10, 0.042],
+                            backgroundColor: ['#EF4444', '#10B981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, max: 0.12 } }
+                    }
+                });
             }
         });
     </script>
