@@ -3,204 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VietCraft™ | Real-Time B2B Traceability Portal</title>
+    <title>VietCraft™ | Real-Time B2B Traceability & Compliance Portal</title>
     
-    <!-- 1. Tailwind CSS -->
+    <!-- 1. Tailwind CSS CDN -->
     <script src="[suspicious link removed]"></script>
     <!-- 2. FontAwesome 6 Icons -->
     <link rel="stylesheet" href="[suspicious link removed]">
-    <!-- 3. Leaflet.js Map CSS & JS -->
+    <!-- 3. Google Fonts (Playfair Display & Inter) -->
+    <link rel="preconnect" href="[suspicious link removed]">
+    <link rel="preconnect" href="[suspicious link removed]" crossorigin>
+    <link href="[suspicious link removed]" rel="stylesheet">
+    <!-- 4. Leaflet.js Map CSS & JS -->
     <link rel="stylesheet" href="[suspicious link removed]" />
     <script src="[suspicious link removed]"></script>
-    <!-- 4. Chart.js -->
+    <!-- 5. Chart.js CDN -->
     <script src="[suspicious link removed]"></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
                     colors: {
-                        cocoa: { 800: '#3D2314', 900: '#231209', gold: '#D4AF37' },
-                        emerald_custom: '#0F5257'
+                        cocoa: {
+                            100: '#F5EFEA',
+                            700: '#5C3A21',
+                            800: '#3D2314',
+                            900: '#1A0C06',
+                            gold: '#D4AF37',
+                            goldlight: '#F4E7B3',
+                            cream: '#FDFBF7'
+                        },
+                        emerald_custom: {
+                            DEFAULT: '#0F5257',
+                            light: '#E6F4EA',
+                            dark: '#065F46'
+                        }
                     }
                 }
             }
         }
     </script>
+
+    <!-- EMBEDDED STYLES (Đảm bảo màu sắc luôn hiển thị dù mạng yếu) -->
     <style>
-        #map { height: 350px; border-radius: 0.75rem; z-index: 1; }
+        :root {
+            --bg-cream: #FDFBF7;
+            --cocoa-dark: #1A0C06;
+            --cocoa-brown: #3D2314;
+            --gold: #D4AF37;
+            --emerald: #0F5257;
+        }
+
+        body {
+            background-color: var(--bg-cream) !important;
+            color: #2D1810;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 3rem;
+        }
+
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #E5E0D8;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(61, 35, 20, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 20px 30px -10px rgba(61, 35, 20, 0.08);
+        }
+
+        #map {
+            height: 360px;
+            border-radius: 0.75rem;
+            z-index: 10;
+            border: 1px solid #E5E0D8;
+        }
+
+        .modal-backdrop {
+            background: rgba(26, 12, 6, 0.8);
+            backdrop-filter: blur(6px);
+        }
+
+        .pulse-dot {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
     </style>
 </head>
-<body class="bg-stone-100 text-stone-800 font-sans antialiased pb-12">
+<body class="bg-cocoa-cream text-stone-800 font-sans antialiased pb-16">
 
     <!-- TOP REAL-TIME STATUS BAR -->
-    <div class="bg-cocoa-900 text-stone-300 text-xs py-2 px-4 border-b border-cocoa-gold/30">
+    <div class="bg-cocoa-900 text-stone-300 text-xs py-2.5 px-4 border-b border-cocoa-gold/40 shadow-inner">
         <div class="max-w-5xl mx-auto flex justify-between items-center flex-wrap gap-2">
             <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span class="font-mono text-emerald-400 font-semibold">LIVE SERVER CONNECTED</span>
-                <span class="text-stone-400">| BAZG Tares Tariff: HS 1804.0000 (0% GSP)</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot inline-block"></span>
+                <span class="font-mono text-emerald-400 font-bold uppercase tracking-wider">VERIFICATION SERVER ACTIVE</span>
+                <span class="text-stone-400 hidden sm:inline">| BAZG Tares Tariff: HS 1804.0000 (0% GSP Preferential)</span>
             </div>
-            <div class="font-mono text-cocoa-gold font-semibold" id="live-clock">
-                Loading Zurich Time...
+            <div class="font-mono text-cocoa-gold font-semibold text-xs flex items-center gap-1.5" id="live-clock">
+                <i class="fa-regular fa-clock text-cocoa-gold"></i> Zurich Time (CET): Loading...
             </div>
         </div>
     </div>
 
-    <!-- HEADER BANNER -->
-    <header class="bg-gradient-to-r from-cocoa-900 via-cocoa-800 to-cocoa-900 text-white py-8 px-4 shadow-xl border-b-2 border-cocoa-gold/40">
-        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <span class="text-xs uppercase tracking-widest text-cocoa-gold font-bold">VietCraft™ Bio-Active Cocoa Switzerland</span>
-                <h1 class="text-2xl md:text-3xl font-serif font-bold tracking-wide mt-1">Real-Time Product Authenticity & Origin Passport</h1>
-                <p class="text-xs text-stone-300 mt-1">Unrefined Cosmetic Cocoa Butter • Bến Tre, Vietnam ➔ Zurich, Switzerland</p>
-            </div>
-            <div class="bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/20 text-right">
-                <p class="text-[10px] uppercase text-cocoa-gold font-semibold">Active Sample Kit Batch</p>
-                <p class="text-lg font-mono font-bold text-white">VK-SK-2026-v1.0</p>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-400/30">Verified Active</span>
+    <!-- HEADER / BRAND BANNER -->
+    <header class="max-w-5xl mx-auto px-4 pt-6 pb-2">
+        <div class="bg-gradient-to-br from-cocoa-900 via-cocoa-800 to-stone-900 text-white rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden border-2 border-cocoa-gold/40">
+            <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-cocoa-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+                <div class="space-y-2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cocoa-gold/15 border border-cocoa-gold/40 text-cocoa-gold text-[11px] font-bold tracking-widest uppercase">
+                        <i class="fa-solid fa-crown text-cocoa-gold"></i> VietCraft™ Bio-Active Cocoa Switzerland
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-serif font-bold tracking-wide text-stone-100">
+                        Batch Authenticity & Origin Passport
+                    </h1>
+                    <p class="text-xs sm:text-sm text-stone-300 font-light max-w-xl leading-relaxed">
+                        Traceable Unrefined Cosmetic Cocoa Butter exported from Châu Thành, Bến Tre (Vietnam) to Luxury Spas & Cosmeceutical Laboratories in Zurich (Switzerland).
+                    </p>
+                </div>
+
+                <div class="bg-stone-900/90 backdrop-blur-md p-4 rounded-xl border border-cocoa-gold/40 text-right min-w-[220px] shadow-lg">
+                    <p class="text-[10px] uppercase tracking-widest text-cocoa-gold font-bold">Verified B2B Batch ID</p>
+                    <p class="text-xl font-mono font-bold text-white mt-1">VK-SK-2026-v1.0</p>
+                    <div class="mt-2 flex items-center justify-end gap-1.5 text-[11px] text-emerald-400 font-semibold">
+                        <i class="fa-solid fa-circle-check"></i> EUDR & GSP Compliant
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-5xl mx-auto px-4 mt-6 space-y-8">
 
-        <!-- SECTION 1: MOCKUP SẢN PHẨM THỰC TẾ -->
-        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <div class="flex justify-between items-center mb-4 border-b border-stone-200 pb-3">
+        <!-- SECTION 1: PHYSICAL PRODUCT SHOWCASE (MOCKUPS) -->
+        <section class="glass-card p-6">
+            <div class="flex justify-between items-center mb-5 border-b border-stone-200 pb-3 flex-wrap gap-2">
                 <div>
-                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-wider">Physical Product Showcase</span>
-                    <h2 class="text-base font-bold text-stone-900">1. B2B Sample Kit Product Mockups</h2>
+                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-widest"><i class="fa-solid fa-box-open mr-1"></i> Physical Product Prototype</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">1. B2B Sample Kit Product Mockups</h2>
                 </div>
-                <span class="text-xs bg-cocoa-900 text-white font-semibold px-2.5 py-1 rounded-full">
-                    Hero Samples
+                <span class="text-xs bg-cocoa-900 text-cocoa-gold font-bold px-3 py-1 rounded-full border border-cocoa-gold/30">
+                    Zurich Hero Samples
                 </span>
             </div>
 
-            <!-- Lưới 3 Ảnh Mockup -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                
-                <!-- Mockup 1: Hũ Bơ Cacao 250g -->
-                <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
-                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-2 shadow-inner flex items-center justify-center relative">
-                        <img src="mockup-jar.png" alt="Cosmetic Cocoa Butter Jar" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-stone-400\'><i class=\'fa-regular fa-image text-2xl mb-1 block\'></i>Upload file <b>mockup-jar.png</b> lên GitHub</div>';">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Mockup 1: Raw Butter Jar -->
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 text-center hover:border-cocoa-gold transition">
+                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative group">
+                        <img src="mockup-jar.png" alt="Cosmetic Cocoa Butter Jar" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 img-fallback" data-label="mockup-jar.png" data-title="Raw Cosmetic Butter Jar (250g)">
                     </div>
-                    <p class="text-xs font-bold text-stone-900">Raw Cosmetic Butter Jar (250g)</p>
-                    <p class="text-[11px] text-stone-500">Amber Glass • UV Protective</p>
+                    <h3 class="text-xs font-bold text-stone-900">Raw Cosmetic Butter Jar (250g)</h3>
+                    <p class="text-[11px] text-stone-500 mt-0.5">Amber Glass • UV Protective • Airtight Seal</p>
                 </div>
 
-                <!-- Mockup 2: Thỏi Nến Massage Bơ Cacao 100g -->
-                <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
-                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-2 shadow-inner flex items-center justify-center relative">
-                        <img src="mockup-candle.png" alt="Warm Massage Candle Bar" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-stone-400\'><i class=\'fa-regular fa-image text-2xl mb-1 block\'></i>Upload file <b>mockup-candle.png</b> lên GitHub</div>';">
+                <!-- Mockup 2: Massage Candle Bar -->
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 text-center hover:border-cocoa-gold transition">
+                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative group">
+                        <img src="mockup-candle.png" alt="Warm Massage Candle Bar" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 img-fallback" data-label="mockup-candle.png" data-title="Warm Bio-Active Candle Bar (100g)">
                     </div>
-                    <p class="text-xs font-bold text-stone-900">Warm Bio-Active Candle Bar (100g)</p>
-                    <p class="text-[11px] text-stone-500">Melt at 37°C Body Temp</p>
+                    <h3 class="text-xs font-bold text-stone-900">Warm Bio-Active Candle Bar (100g)</h3>
+                    <p class="text-[11px] text-stone-500 mt-0.5">Low Melting Point 34.2°C • Body Temp Pour</p>
                 </div>
 
-                <!-- Mockup 3: Bao bì Hộp B2B Sample Kit -->
-                <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 text-center">
-                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-2 shadow-inner flex items-center justify-center relative">
-                        <img src="packaging.png" alt="B2B Sample Kit Box" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-stone-400\'><i class=\'fa-regular fa-image text-2xl mb-1 block\'></i>Upload file <b>packaging.png</b> lên GitHub</div>';">
+                <!-- Mockup 3: Outer Packaging -->
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 text-center hover:border-cocoa-gold transition">
+                    <div class="aspect-square bg-stone-200 rounded-lg overflow-hidden mb-3 shadow-inner flex items-center justify-center relative group">
+                        <img src="packaging.png" alt="B2B Sample Kit Packaging" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 img-fallback" data-label="packaging.png" data-title="B2B Outer Packaging & QR Label">
                     </div>
-                    <p class="text-xs font-bold text-stone-900">B2B Outer Packaging & QR Label</p>
-                    <p class="text-[11px] text-stone-500">Eco-Friendly Unbleached Craft Box</p>
+                    <h3 class="text-xs font-bold text-stone-900">B2B Outer Packaging & QR Label</h3>
+                    <p class="text-[11px] text-stone-500 mt-0.5">Eco Craft Box • Batch QR Verification Code</p>
                 </div>
-
             </div>
         </section>
 
-        <!-- SECTION 2: GIẢ LẬP CHECK REAL-TIME (BATCH SEARCH) -->
-        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <h2 class="text-base font-bold text-cocoa-900 mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-magnifying-glass text-cocoa-gold"></i>
-                2. Real-Time Batch Verification Search
-            </h2>
-            <p class="text-xs text-stone-500 mb-4">Enter your product Batch ID printed on the jar/candle packaging to verify live status:</p>
-            
-            <div class="flex gap-2 max-w-md">
-                <input type="text" id="batchInput" value="VK-SK-2026-v1.0" class="flex-1 px-4 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cocoa-gold font-mono font-semibold">
-                <button onclick="checkBatch()" class="bg-cocoa-900 hover:bg-cocoa-800 text-white font-medium text-xs px-5 py-2 rounded-lg transition shadow">
-                    Verify Batch
+        <!-- SECTION 2: REAL-TIME BATCH VERIFICATION SEARCH -->
+        <section class="glass-card p-6">
+            <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest"><i class="fa-solid fa-shield-virus mr-1"></i> Live Verification Query</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">2. Real-Time Batch Verification Search</h2>
+                </div>
+                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300">
+                    Swiss B2B Registry Connected
+                </span>
+            </div>
+
+            <p class="text-xs text-stone-600 mb-4">Enter the unique 12-digit Batch ID printed on your Jar or Candle Bar QR Label to verify authenticity & CoA parameters:</p>
+
+            <div class="flex gap-2 max-w-lg">
+                <input type="text" id="batchInput" value="VK-SK-2026-v1.0" class="flex-1 px-4 py-2.5 text-sm border-2 border-stone-300 rounded-xl focus:outline-none focus:border-cocoa-gold font-mono font-bold text-stone-800 uppercase shadow-inner">
+                <button onclick="checkBatch()" class="bg-cocoa-900 hover:bg-cocoa-800 text-cocoa-gold font-bold text-xs px-6 py-2.5 rounded-xl transition shadow-md flex items-center gap-2 border border-cocoa-gold/30">
+                    <i class="fa-solid fa-magnifying-glass"></i> Verify Batch
                 </button>
             </div>
 
-            <!-- Result Box -->
             <div id="searchResult" class="mt-4">
-                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-between flex-wrap gap-3">
+                <div class="bg-emerald-50/90 border-2 border-emerald-300 p-4 rounded-xl flex items-center justify-between flex-wrap gap-3 shadow-sm">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">✓</div>
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow">✓</div>
                         <div>
-                            <p class="text-xs font-bold text-emerald-900">VERIFIED AUTHENTIC B2B SAMPLE BATCH</p>
-                            <p class="text-[11px] text-emerald-700">Eurofins Lab Tested • Cadmium: 0.042 mg/kg • FFA: 0.68% • EUDR GPS Cleared</p>
+                            <p class="text-xs font-bold text-emerald-950">VERIFIED AUTHENTIC B2B SAMPLE BATCH [VK-SK-2026-v1.0]</p>
+                            <p class="text-[11px] text-emerald-800 mt-0.5">Eurofins Lab Tested • Cadmium: 0.042 mg/kg • FFA: 0.68% • EUDR GPS Cleared</p>
                         </div>
                     </div>
-                    <span class="text-xs font-mono bg-white px-2.5 py-1 rounded border border-emerald-300 font-bold text-emerald-800">Status: PASS (100%)</span>
+                    <span class="text-xs font-mono bg-white px-3 py-1.5 rounded-lg border border-emerald-400 font-bold text-emerald-800 shadow-sm">Status: PASS (100%)</span>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 3: BẢN ĐỒ TƯƠNG TÁC 2 ĐẦU (BẾN TRE ➔ ZURICH) -->
-        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+        <!-- SECTION 3: DUAL-HUB GEOLOCATION MAP (BẾN TRE ➔ ZURICH) -->
+        <section class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2 border-b border-stone-200 pb-3">
                 <div>
-                    <span class="text-[10px] font-bold text-emerald_custom uppercase">EUDR Deforestation-Free Geolocation</span>
-                    <h2 class="text-base font-bold text-stone-900">3. Supply Chain Geolocation (Origin & Destination Hub)</h2>
+                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest"><i class="fa-solid fa-map-location-dot mr-1"></i> EUDR GPS Traceability</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">3. Supply Chain Geolocation (Origin & Destination Hub)</h2>
                 </div>
-                <span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">
+                <span class="text-xs bg-cocoa-900 text-cocoa-gold font-bold px-3 py-1 rounded-full border border-cocoa-gold/30">
                     <i class="fa-solid fa-plane-departure mr-1"></i> SGN ➔ ZRH Route Active
                 </span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-xs">
-                <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
+                <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
                     <p class="text-stone-500 font-medium">📍 Origin Orchard Plot</p>
                     <p class="font-bold text-stone-900 mt-0.5">Châu Thành Agroforestry Plot #04</p>
-                    <p class="text-emerald-800 font-mono font-semibold mt-0.5">10.2431° N, 106.3751° E (Bến Tre)</p>
+                    <p class="text-emerald-800 font-mono font-bold mt-1">10.2431° N, 106.3751° E (Bến Tre)</p>
                 </div>
-                <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
-                    <p class="text-stone-500 font-medium">🛫 Consolidated Shipping Route</p>
+                <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                    <p class="text-stone-500 font-medium">🛫 Consolidated Air Freight Route</p>
                     <p class="font-bold text-stone-900 mt-0.5">Tan Son Nhat (SGN) ➔ Zurich (ZRH)</p>
-                    <p class="text-stone-600 mt-0.5">Air Freight w/ Thermal Liner ($2.20/kg)</p>
+                    <p class="text-stone-600 mt-1">Air Cargo w/ Thermal Protection ($2.20/kg)</p>
                 </div>
-                <div class="bg-stone-50 p-3 rounded-lg border border-stone-200">
-                    <p class="text-stone-500 font-medium">🏢 Destination B2B Hub</p>
+                <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                    <p class="text-stone-500 font-medium">🏢 Swiss Destination Hub</p>
                     <p class="font-bold text-stone-900 mt-0.5">Paradeplatz Luxury Spa & Lab Hub</p>
-                    <p class="text-cocoa-800 font-mono font-semibold mt-0.5">47.3698° N, 8.5391° E (Zurich)</p>
+                    <p class="text-cocoa-800 font-mono font-bold mt-1">47.3698° N, 8.5391° E (Zurich)</p>
                 </div>
             </div>
 
             <!-- LEAFLET MAP CONTAINER -->
-            <div id="map"></div>
+            <div id="map" class="shadow-md"></div>
         </section>
 
-        <!-- SECTION 4: TRÌNH CHIẾU 4 VIDEO YOUTUBE TƯƠNG TÁC -->
-        <section id="video-section" class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <h2 class="text-base font-bold text-cocoa-900 mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-circle-play text-cocoa-gold"></i>
-                4. Production Process Video & Visual Proof
-            </h2>
-            <p class="text-xs text-stone-500 mb-4">Click từng tab bên dưới để chuyển video quy trình tương ứng:</p>
-            
-            <!-- Thanh Tab Chuyển Video -->
-            <div class="flex gap-2 overflow-x-auto pb-2 mb-4 text-xs font-semibold">
-                <button onclick="switchVideo('7RImpHjqx8E', 'Nông hộ & Thu hoạch Cacao Bến Tre', this)" class="vid-tab px-3 py-2 rounded-lg bg-cocoa-900 text-white shadow transition flex items-center gap-1.5 whitespace-nowrap">
+        <!-- SECTION 4: INTERACTIVE 4-VIDEO YOUTUBE SHOWCASE -->
+        <section id="video-section" class="glass-card p-6">
+            <div class="flex justify-between items-center mb-3 flex-wrap gap-2 border-b border-stone-200 pb-3">
+                <div>
+                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-widest"><i class="fa-solid fa-circle-play mr-1"></i> Visual Supply Chain Audit</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">4. Production Process Video & Proof</h2>
+                </div>
+                <span class="text-xs bg-stone-100 text-stone-700 font-semibold px-3 py-1 rounded-full border border-stone-300">
+                    4 Video Chapters
+                </span>
+            </div>
+
+            <p class="text-xs text-stone-600 mb-4">Click any video tab below to view authentic harvest, cold-pressing, and cosmetic lab formulation footage:</p>
+
+            <!-- Video Tabs -->
+            <div class="flex gap-2 overflow-x-auto pb-2 mb-4 text-xs font-bold">
+                <button onclick="switchVideo('7RImpHjqx8E', 'Nông hộ & Thu hoạch Cacao Bến Tre', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-cocoa-900 text-cocoa-gold shadow transition flex items-center gap-1.5 whitespace-nowrap border border-cocoa-gold/30">
                     🌱 1. Thu hoạch Bến Tre
                 </button>
-                <button onclick="switchVideo('jFp2QUCd15c', 'Quy trình Ép lạnh thô (Cold-pressed Cocoa Butter)', this)" class="vid-tab px-3 py-2 rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchVideo('jFp2QUCd15c', 'Quy trình Ép lạnh thô (Cold-pressed Cocoa Butter)', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
                     💧 2. Ép lạnh thô
                 </button>
-                <button onclick="switchVideo('95TPTkvFS9o', 'Nến bơ Massage & Spa cao cấp (B2B Prototype)', this)" class="vid-tab px-3 py-2 rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchVideo('95TPTkvFS9o', 'Nến bơ Massage & Spa cao cấp (B2B Prototype)', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
                     🕯️ 3. Nến Bơ Spa
                 </button>
-                <button onclick="switchVideo('Zo44X-K-sKs', 'Phòng Lab Mỹ phẩm & Công thức Cream Olivem 1000', this)" class="vid-tab px-3 py-2 rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap">
+                <button onclick="switchVideo('Zo44X-K-sKs', 'Phòng Lab Mỹ phẩm & Công thức Cream Olivem 1000', this)" class="vid-tab px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition flex items-center gap-1.5 whitespace-nowrap border border-stone-200">
                     🔬 4. Lab Mỹ Phẩm
                 </button>
             </div>
 
-            <!-- Khung Embed Video YouTube -->
-            <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-md relative">
+            <!-- YouTube Video Embed -->
+            <div class="aspect-video bg-stone-900 rounded-xl overflow-hidden shadow-xl relative border border-stone-800">
                 <iframe id="youtubeIframe" class="w-full h-full border-0" 
                     src="[suspicious link removed]" 
                     title="VietCraft Production Process" 
@@ -208,93 +300,99 @@
                     allowfullscreen>
                 </iframe>
             </div>
-            <p id="videoTitleDisplay" class="text-xs text-stone-600 font-medium mt-3 italic text-center bg-stone-50 py-2 rounded border border-stone-200">
+            <p id="videoTitleDisplay" class="text-xs text-stone-700 font-semibold mt-3 italic text-center bg-stone-50 py-2.5 rounded-xl border border-stone-200">
                 📹 Đang phát: <strong>Nông hộ & Thu hoạch Cacao Bến Tre</strong>
             </p>
         </section>
 
-        <!-- SECTION 5: BẢNG KẾT QUẢ KIỂM NGHIỆM LAB (CoA) -->
-        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-3 border-b border-stone-200">
+        <!-- SECTION 5: LABORATORY CERTIFICATE OF ANALYSIS (CoA) & MODAL -->
+        <section class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2 border-b border-stone-200 pb-3">
                 <div>
-                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-wider">Independent Quality Verification</span>
-                    <h2 class="text-base font-bold text-stone-900">5. Laboratory Certificate of Analysis (CoA)</h2>
+                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-widest"><i class="fa-solid fa-flask-vial mr-1"></i> ISO 17025 Certified Testing</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">5. Laboratory Certificate of Analysis (CoA)</h2>
                 </div>
-                <div class="text-xs text-stone-500 font-mono">
-                    ISO/IEC 17025 Accredited Testing
-                </div>
+                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300">
+                    Eurofins / Euro-Tox Certified
+                </span>
             </div>
 
             <div class="overflow-x-auto rounded-xl border border-stone-200 shadow-sm mb-4">
-                <table class="w-full text-xs text-left text-stone-700">
+                <table class="w-full text-xs text-left text-stone-800">
                     <thead class="bg-cocoa-900 text-stone-100 uppercase tracking-wider text-[10px]">
                         <tr>
-                            <th class="p-3">Technical Parameter</th>
-                            <th class="p-3">Target Specification</th>
-                            <th class="p-3">Batch Tested Result</th>
-                            <th class="p-3 text-center">Testing Protocol</th>
-                            <th class="p-3 text-center">Status</th>
+                            <th class="p-3.5">Technical Parameter</th>
+                            <th class="p-3.5">Target Specification</th>
+                            <th class="p-3.5">Batch Tested Result</th>
+                            <th class="p-3.5 text-center">Testing Protocol</th>
+                            <th class="p-3.5 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-stone-200 bg-white">
                         <tr class="hover:bg-stone-50">
-                            <td class="p-3 font-bold text-stone-900">Cadmium (Cd) Heavy Metal</td>
-                            <td class="p-3 text-stone-500">&lt; 0.10 mg/kg (Strict EU Limit)</td>
-                            <td class="p-3 font-mono font-bold text-emerald-700 bg-emerald-50">0.042 mg/kg</td>
-                            <td class="p-3 text-center text-stone-500 font-mono">ICP-MS (BS EN 13804)</td>
-                            <td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PASSED</span></td>
+                            <td class="p-3.5 font-bold text-stone-900">Cadmium (Cd) Heavy Metal</td>
+                            <td class="p-3.5 text-stone-500">&lt; 0.10 mg/kg (Strict EU Limit)</td>
+                            <td class="p-3.5 font-mono font-bold text-emerald-800 bg-emerald-50/70">0.042 mg/kg</td>
+                            <td class="p-3.5 text-center text-stone-500 font-mono">ICP-MS (BS EN 13804)</td>
+                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
                         </tr>
                         <tr class="hover:bg-stone-50">
-                            <td class="p-3 font-bold text-stone-900">Free Fatty Acids (FFA)</td>
-                            <td class="p-3 text-stone-500">&le; 1.0% (Cosmeceutical Grade)</td>
-                            <td class="p-3 font-mono font-bold text-emerald-700 bg-emerald-50">0.68%</td>
-                            <td class="p-3 text-center text-stone-500 font-mono">ISO 660 Titration</td>
-                            <td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PASSED</span></td>
+                            <td class="p-3.5 font-bold text-stone-900">Free Fatty Acids (FFA)</td>
+                            <td class="p-3.5 text-stone-500">&le; 1.0% (Cosmeceutical Grade)</td>
+                            <td class="p-3.5 font-mono font-bold text-emerald-800 bg-emerald-50/70">0.68%</td>
+                            <td class="p-3.5 text-center text-stone-500 font-mono">ISO 660 Titration</td>
+                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
                         </tr>
                         <tr class="hover:bg-stone-50">
-                            <td class="p-3 font-bold text-stone-900">Slip Melting Point</td>
-                            <td class="p-3 text-stone-500">33.5°C – 35.5°C (Body Melt)</td>
-                            <td class="p-3 font-mono font-bold text-emerald-700 bg-emerald-50">34.2°C</td>
-                            <td class="p-3 text-center text-stone-500 font-mono">ISO 6321 Tube Method</td>
-                            <td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PASSED</span></td>
+                            <td class="p-3.5 font-bold text-stone-900">Slip Melting Point</td>
+                            <td class="p-3.5 text-stone-500">33.5°C – 35.5°C (Body Melt at 37°C)</td>
+                            <td class="p-3.5 font-mono font-bold text-emerald-800 bg-emerald-50/70">34.2°C</td>
+                            <td class="p-3.5 text-center text-stone-500 font-mono">ISO 6321 Tube Method</td>
+                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
                         </tr>
                         <tr class="hover:bg-stone-50">
-                            <td class="p-3 font-bold text-stone-900">Extraction Method</td>
-                            <td class="p-3 text-stone-500">Cold-Pressed / Unrefined</td>
-                            <td class="p-3 font-semibold text-cocoa-800 bg-amber-50">100% Natural Aroma</td>
-                            <td class="p-3 text-center text-stone-500 font-mono">Organoleptic Spec</td>
-                            <td class="p-3 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PASSED</span></td>
+                            <td class="p-3.5 font-bold text-stone-900">Extraction Method</td>
+                            <td class="p-3.5 text-stone-500">Cold-Pressed / Unrefined / No Bleach</td>
+                            <td class="p-3.5 font-semibold text-cocoa-800 bg-amber-50">100% Rich Nutty Aroma</td>
+                            <td class="p-3.5 text-center text-stone-500 font-mono">Organoleptic Spec</td>
+                            <td class="p-3.5 text-center"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PASSED</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="text-right">
-                <button onclick="alert('📄 Downloading Certified PDF Official CoA Report (COA-2026-VK-88912.pdf)...')" class="bg-cocoa-900 hover:bg-cocoa-800 text-white font-medium text-xs px-4 py-2 rounded-lg shadow transition">
-                    <i class="fa-solid fa-file-arrow-down text-cocoa-gold mr-1"></i> Download Certified PDF CoA
+            <div class="flex justify-between items-center flex-wrap gap-2">
+                <p class="text-[11px] text-stone-500 italic">*Report Reference: COA-2026-VK-88912 | ISO 17025 Accredited</p>
+                <button onclick="openCoAModal()" class="bg-cocoa-900 hover:bg-cocoa-800 text-cocoa-gold font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 border border-cocoa-gold/30">
+                    <i class="fa-solid fa-file-contract"></i> View & Download Official Cert CoA
                 </button>
             </div>
         </section>
 
-        <!-- SECTION 6: BIỂU ĐỒ ANALYTICS CHART.JS -->
-        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <h2 class="text-base font-bold text-cocoa-900 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-chart-pie text-cocoa-gold"></i>
-                6. Analytics Dashboard (Unit Economics & Cadmium Comparison)
-            </h2>
+        <!-- SECTION 6: ANALYTICS DASHBOARD (CHART.JS) -->
+        <section class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2 border-b border-stone-200 pb-3">
+                <div>
+                    <span class="text-[10px] font-bold text-cocoa-gold uppercase tracking-widest"><i class="fa-solid fa-chart-pie mr-1"></i> Data Analytics</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">6. Unit Economics & Heavy Metal Safety Dashboard</h2>
+                </div>
+                <span class="text-xs bg-stone-100 text-stone-700 font-semibold px-3 py-1 rounded-full border border-stone-300">
+                    Interactive Charts
+                </span>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Biểu đồ 1: Cơ cấu Giá bán Unit Economics -->
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                    <p class="text-xs font-bold text-stone-800 text-center mb-2">Unit Economics Breakdown ($32.00/kg Base Price)</p>
+                <!-- Chart 1: Unit Economics Breakdown -->
+                <div class="bg-stone-50 p-4 rounded-xl border border-stone-200 text-center">
+                    <p class="text-xs font-bold text-stone-900 mb-3">Unit Economics Breakdown ($32.00/kg Base Price)</p>
                     <div class="max-w-[260px] mx-auto">
                         <canvas id="unitChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Biểu đồ 2: So sánh Nồng độ Cadmium -->
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                    <p class="text-xs font-bold text-stone-800 text-center mb-2">Cadmium Level Comparison (mg/kg)</p>
+                <!-- Chart 2: Cadmium Safety Level -->
+                <div class="bg-stone-50 p-4 rounded-xl border border-stone-200 text-center">
+                    <p class="text-xs font-bold text-stone-900 mb-3">Cadmium (Cd) Level vs EU Threshold (mg/kg)</p>
                     <div class="max-w-[320px] mx-auto">
                         <canvas id="cadmiumChart"></canvas>
                     </div>
@@ -302,32 +400,32 @@
             </div>
         </section>
 
-        <!-- SECTION 7: CHỈ SỐ BÙ TRỪ CARBON -->
-        <section class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
-            <div class="flex justify-between items-center mb-4 border-b border-stone-200 pb-3">
+        <!-- SECTION 7: CARBON FOOTPRINT & AGROFORESTRY METRICS -->
+        <section class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4 border-b border-stone-200 pb-3 flex-wrap gap-2">
                 <div>
-                    <span class="text-[10px] font-bold text-emerald_custom uppercase">Sustainability Impact</span>
-                    <h2 class="text-base font-bold text-stone-900">7. Carbon Footprint & Offset Metrics</h2>
+                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest"><i class="fa-solid fa-leaf mr-1"></i> Agroforestry Sustainability</span>
+                    <h2 class="text-lg font-serif font-bold text-stone-900">7. Carbon Footprint & Climate Positive Metrics</h2>
                 </div>
-                <span class="px-3 py-1 bg-emerald-700 text-white font-bold text-xs rounded-full">
-                    Net Carbon Negative
+                <span class="px-3 py-1 bg-emerald-700 text-white font-bold text-xs rounded-full shadow-sm">
+                    Net Carbon Negative Product
                 </span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                    <p class="text-xs text-stone-500 font-medium">Supply Chain Emission</p>
-                    <p class="text-xl font-bold text-stone-800 mt-1">+1.82 <span class="text-xs font-normal text-stone-500">kg CO2e/kg</span></p>
+                    <p class="text-xs text-stone-500 font-medium">Supply Chain Carbon Footprint</p>
+                    <p class="text-2xl font-serif font-bold text-stone-800 mt-1">+1.82 <span class="text-xs font-sans font-normal text-stone-500">kg CO2e/kg</span></p>
                     <p class="text-[10px] text-stone-400 mt-1">Processing & Air Freight</p>
                 </div>
                 <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
                     <p class="text-xs text-stone-500 font-medium">Agroforestry Sequestration</p>
-                    <p class="text-xl font-bold text-emerald-700 mt-1">-2.25 <span class="text-xs font-normal text-stone-500">kg CO2e/kg</span></p>
-                    <p class="text-[10px] text-stone-400 mt-1">Coconut-Cocoa Canopy</p>
+                    <p class="text-2xl font-serif font-bold text-emerald-700 mt-1">-2.25 <span class="text-xs font-sans font-normal text-stone-500">kg CO2e/kg</span></p>
+                    <p class="text-[10px] text-stone-400 mt-1">Coconut-Cocoa Canopy Absorption</p>
                 </div>
-                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
+                <div class="bg-emerald-50 border-2 border-emerald-300 p-4 rounded-xl shadow-sm">
                     <p class="text-xs text-emerald-900 font-bold">Net Climate Impact</p>
-                    <p class="text-xl font-bold text-emerald-800 mt-1">-0.43 <span class="text-xs font-normal text-emerald-700">kg CO2e/kg</span></p>
+                    <p class="text-2xl font-serif font-bold text-emerald-800 mt-1">-0.43 <span class="text-xs font-sans font-normal text-emerald-700">kg CO2e/kg</span></p>
                     <p class="text-[10px] text-emerald-800 font-semibold mt-1">Climate Positive Ingredient</p>
                 </div>
             </div>
@@ -335,30 +433,116 @@
 
     </main>
 
+    <!-- OFFICIAL CERTIFICATE CoA MODAL POPUP -->
+    <div id="coaModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border-2 border-cocoa-gold/50 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCoAModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-800 text-xl font-bold p-2">✕</button>
+            
+            <div class="text-center border-b border-stone-200 pb-4 mb-4">
+                <span class="text-xs uppercase font-bold text-cocoa-gold tracking-widest">ISO/IEC 17025 Accredited Laboratory</span>
+                <h3 class="text-xl font-serif font-bold text-stone-900 mt-1">Official Eurofins Certificate of Analysis</h3>
+                <p class="text-xs text-stone-500">Report No: COA-2026-VK-88912 | Issue Date: 2026-10-28</p>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-3 bg-stone-50 p-3 rounded-xl border border-stone-200">
+                    <div>
+                        <p class="text-stone-500">Sample Name:</p>
+                        <p class="font-bold text-stone-900">VietCraft Unrefined Cocoa Butter</p>
+                    </div>
+                    <div>
+                        <p class="text-stone-500">Batch Identifier:</p>
+                        <p class="font-mono font-bold text-cocoa-800">VK-SK-2026-v1.0</p>
+                    </div>
+                    <div>
+                        <p class="text-stone-500">Country of Origin:</p>
+                        <p class="font-bold text-stone-900">Vietnam (Bến Tre Province)</p>
+                    </div>
+                    <div>
+                        <p class="text-stone-500">Destination Hub:</p>
+                        <p class="font-bold text-stone-900">Zurich, Switzerland</p>
+                    </div>
+                </div>
+
+                <div class="border rounded-xl overflow-hidden border-stone-200">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-cocoa-900 text-white text-[10px]">
+                            <tr>
+                                <th class="p-2.5">Analysis Test</th>
+                                <th class="p-2.5">Method</th>
+                                <th class="p-2.5">Result</th>
+                                <th class="p-2.5">Limit Spec</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-200">
+                            <tr>
+                                <td class="p-2.5 font-bold">Heavy Metal Cadmium (Cd)</td>
+                                <td class="p-2.5">ICP-MS</td>
+                                <td class="p-2.5 font-bold text-emerald-700">0.042 mg/kg</td>
+                                <td class="p-2.5">&lt; 0.10 mg/kg</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold">Free Fatty Acids (FFA)</td>
+                                <td class="p-2.5">ISO 660</td>
+                                <td class="p-2.5 font-bold text-emerald-700">0.68%</td>
+                                <td class="p-2.5">&le; 1.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold">Slip Melting Point</td>
+                                <td class="p-2.5">ISO 6321</td>
+                                <td class="p-2.5 font-bold text-emerald-700">34.2°C</td>
+                                <td class="p-2.5">33.5°C - 35.5°C</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-emerald-50 border border-emerald-300 p-3 rounded-xl text-center">
+                    <p class="font-bold text-emerald-900 text-xs">✓ CERTIFICATION COMPLIANT FOR EUROPEAN COSMECEUTICAL USE</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="closeCoAModal()" class="px-4 py-2 text-xs font-bold text-stone-600 bg-stone-100 rounded-xl hover:bg-stone-200">Close Window</button>
+                <button onclick="alert('Downloading Certified PDF...')" class="px-5 py-2 text-xs font-bold text-cocoa-gold bg-cocoa-900 rounded-xl hover:bg-cocoa-800 shadow">Download PDF Version</button>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="max-w-5xl mx-auto px-4 mt-8 text-center text-xs text-stone-500">
-        <p>© 2026 VietCraft™ Bio-Active Cocoa Switzerland | Group USAGI (Class K234081E - UEL)</p>
-        <p class="mt-1">Faculty of International Economic Relations | Dr. Tran My Linh</p>
+        <p class="font-serif font-bold text-stone-800 text-sm">VIETCRAFT™ BIO-ACTIVE COCOA SWITZERLAND</p>
+        <p class="mt-1">International Business Entrepreneurship Final Project | Group USAGI (Class K234081E - UEL)</p>
+        <p class="mt-0.5">Faculty of International Economic Relations | Instructor: Dr. Tran My Linh</p>
     </footer>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 1. Đồng hồ thời gian thực (Zurich CET Time)
+        // Modal Handlers
+        function openCoAModal() {
+            var m = document.getElementById('coaModal');
+            if (m) m.classList.remove('hidden');
+        }
+        function closeCoAModal() {
+            var m = document.getElementById('coaModal');
+            if (m) m.classList.add('hidden');
+        }
+
+        // Live Zurich Clock
         function updateClock() {
-            const now = new Date();
-            const options = { timeZone: 'Europe/Zurich', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            const clockEl = document.getElementById('live-clock');
+            var now = new Date();
+            var options = { timeZone: 'Europe/Zurich', hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            var clockEl = document.getElementById('live-clock');
             if (clockEl) {
-                clockEl.innerText = 'Zurich Time (CET): ' + now.toLocaleString('en-GB', options);
+                clockEl.innerHTML = '<i class="fa-regular fa-clock text-cocoa-gold mr-1"></i> Zurich Time (CET): ' + now.toLocaleString('en-GB', options);
             }
         }
         setInterval(updateClock, 1000);
-        updateClock();
 
-        // 2. Chuyển đổi Video YouTube
+        // Video Switcher
         function switchVideo(videoId, title, btnElement) {
-            const iframe = document.getElementById('youtubeIframe');
-            const titleEl = document.getElementById('videoTitleDisplay');
+            var iframe = document.getElementById('youtubeIframe');
+            var titleEl = document.getElementById('videoTitleDisplay');
             if (iframe) {
                 iframe.src = '[suspicious link removed]' + videoId + '?autoplay=1&rel=0';
             }
@@ -366,113 +550,143 @@
                 titleEl.innerHTML = '📹 Đang phát: <strong>' + title + '</strong>';
             }
             
-            const tabs = document.querySelectorAll('.vid-tab');
-            tabs.forEach(tab => {
-                tab.classList.remove('bg-cocoa-900', 'text-white', 'shadow');
-                tab.classList.add('bg-stone-100', 'text-stone-700');
-            });
+            var tabs = document.querySelectorAll('.vid-tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('bg-cocoa-900', 'text-cocoa-gold', 'shadow');
+                tabs[i].classList.add('bg-stone-100', 'text-stone-700');
+            }
             if (btnElement) {
                 btnElement.classList.remove('bg-stone-100', 'text-stone-700');
-                btnElement.classList.add('bg-cocoa-900', 'text-white', 'shadow');
+                btnElement.classList.add('bg-cocoa-900', 'text-cocoa-gold', 'shadow');
             }
         }
 
-        // 3. Check Batch Search Giả lập
+        // Check Batch Query
         function checkBatch() {
-            const inputEl = document.getElementById('batchInput');
-            const resultDiv = document.getElementById('searchResult');
+            var inputEl = document.getElementById('batchInput');
+            var resultDiv = document.getElementById('searchResult');
             if (!inputEl || !resultDiv) return;
-            const input = inputEl.value.trim();
+            var input = inputEl.value.trim();
             
-            resultDiv.innerHTML = '<div class="text-center py-4 text-cocoa-gold font-bold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Querying Eurofins Lab & BAZG Customs Database...</div>';
+            resultDiv.innerHTML = '<div class="text-center py-4 text-cocoa-gold font-bold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Querying Eurofins Lab & BAZG Swiss Customs Registry...</div>';
             
-            setTimeout(() => {
-                if(input.toUpperCase().includes('VK') || input.toUpperCase().includes('2026')) {
-                    resultDiv.innerHTML = `
-                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-between flex-wrap gap-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">✓</div>
-                                <div>
-                                    <p class="text-xs font-bold text-emerald-900">VERIFIED AUTHENTIC B2B SAMPLE BATCH [${input.toUpperCase()}]</p>
-                                    <p class="text-[11px] text-emerald-700">Eurofins Lab Tested • Cadmium: 0.042 mg/kg • FFA: 0.68% • EUDR GPS Cleared</p>
-                                </div>
-                            </div>
-                            <span class="text-xs font-mono bg-white px-2.5 py-1 rounded border border-emerald-300 font-bold text-emerald-800">Status: PASS (100%)</span>
-                        </div>`;
+            setTimeout(function() {
+                if(input.toUpperCase().indexOf('VK') !== -1 || input.toUpperCase().indexOf('2026') !== -1) {
+                    resultDiv.innerHTML = '<div class="bg-emerald-50/90 border-2 border-emerald-300 p-4 rounded-xl flex items-center justify-between flex-wrap gap-3 shadow-sm">' +
+                        '<div class="flex items-center gap-3">' +
+                        '<div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow">✓</div>' +
+                        '<div>' +
+                        '<p class="text-xs font-bold text-emerald-950">VERIFIED AUTHENTIC B2B SAMPLE BATCH [' + input.toUpperCase() + ']</p>' +
+                        '<p class="text-[11px] text-emerald-800 mt-0.5">Eurofins Lab Tested • Cadmium: 0.042 mg/kg • FFA: 0.68% • EUDR GPS Cleared</p>' +
+                        '</div>' +
+                        '</div>' +
+                        '<span class="text-xs font-mono bg-white px-3 py-1.5 rounded-lg border border-emerald-400 font-bold text-emerald-800 shadow-sm">Status: PASS (100%)</span>' +
+                        '</div>';
                 } else {
-                    resultDiv.innerHTML = `
-                        <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl flex items-center justify-between">
-                            <p class="text-xs font-bold text-rose-900">⚠️ BATCH ID NOT FOUND IN SWISS REGISTRY. PLEASE CHECK PACKAGING LABEL.</p>
-                        </div>`;
+                    resultDiv.innerHTML = '<div class="bg-rose-50 border-2 border-rose-300 p-4 rounded-xl flex items-center justify-between">' +
+                        '<p class="text-xs font-bold text-rose-900">⚠️ BATCH ID NOT FOUND IN SWISS REGISTRY. PLEASE CHECK QR CODE ON LABEL.</p>' +
+                        '</div>';
                 }
             }, 600);
         }
 
-        // 4. Khởi tạo sau khi DOM sẵn sàng (Bản đồ + Biểu đồ)
+        // DOM Initialization
         document.addEventListener('DOMContentLoaded', function() {
-            // Leaflet Map 2 Đầu
-            const benTreCoords = [10.2431, 106.3751];
-            const zurichCoords = [47.3698, 8.5391];
+            updateClock();
 
-            if (document.getElementById('map')) {
-                const map = L.map('map').setView([25.0, 60.0], 2);
+            // Image fallback builder
+            var imgs = document.querySelectorAll('.img-fallback');
+            for (var i = 0; i < imgs.length; i++) {
+                imgs[i].addEventListener('error', function() {
+                    var label = this.getAttribute('data-label') || 'Image';
+                    var title = this.getAttribute('data-title') || 'Product Mockup';
+                    if (this.parentElement) {
+                        this.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-stone-900 via-cocoa-900 to-stone-900 text-white p-4 flex flex-col items-center justify-center text-center rounded-lg shadow-inner">' +
+                            '<div class="w-12 h-12 rounded-full bg-cocoa-gold/20 text-cocoa-gold flex items-center justify-center text-2xl mb-2 border border-cocoa-gold/40">' +
+                            '<i class="fa-solid fa-box font-bold"></i>' +
+                            '</div>' +
+                            '<p class="text-xs font-bold text-cocoa-gold">' + title + '</p>' +
+                            '<p class="text-[10px] text-stone-300 mt-1">Upload <b>' + label + '</b> to GitHub</p>' +
+                            '</div>';
+                    }
+                });
+            }
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
+            // Leaflet Map Initialization
+            var benTreCoords = [10.2431, 106.3751];
+            var zurichCoords = [47.3698, 8.5391];
 
-                const benTreMarker = L.marker(benTreCoords).addTo(map);
-                benTreMarker.bindPopup("<b>📍 Origin: Bến Tre Orchard Plot #04</b><br>Harvest & Cold Pressing").openPopup();
+            if (document.getElementById('map') && typeof L !== 'undefined') {
+                try {
+                    var map = L.map('map').setView([25.0, 60.0], 2);
 
-                const zurichMarker = L.marker(zurichCoords).addTo(map);
-                zurichMarker.bindPopup("<b>🏢 Destination: Zurich Hub</b><br>Luxury Spas & Cosmeceutical Labs");
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '© OpenStreetMap contributors | EUDR Geolocation'
+                    }).addTo(map);
 
-                L.polyline([benTreCoords, zurichCoords], {
-                    color: '#D4AF37',
-                    weight: 3,
-                    dashArray: '6, 8'
-                }).addTo(map);
+                    var benTreMarker = L.marker(benTreCoords).addTo(map);
+                    benTreMarker.bindPopup("<b>📍 Origin: Châu Thành Plot #04</b><br>Bến Tre, Vietnam (GPS Mapped)").openPopup();
+
+                    var zurichMarker = L.marker(zurichCoords).addTo(map);
+                    zurichMarker.bindPopup("<b>🏢 Destination: Zurich Hub</b><br>Paradeplatz Luxury Spas & Labs");
+
+                    L.polyline([benTreCoords, zurichCoords], {
+                        color: '#D4AF37',
+                        weight: 3,
+                        dashArray: '6, 8'
+                    }).addTo(map);
+                } catch(e) {
+                    console.error("Map note:", e);
+                }
             }
 
             // Chart 1: Unit Economics
-            const unitCtx = document.getElementById('unitChart');
-            if (unitCtx) {
-                new Chart(unitCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['COGS & Pressing ($14)', 'Freight & Customs ($8)', 'Margin ($10)'],
-                        datasets: [{
-                            data: [14, 8, 10],
-                            backgroundColor: ['#231209', '#0F5257', '#D4AF37']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
-                    }
-                });
+            var unitCtx = document.getElementById('unitChart');
+            if (unitCtx && typeof Chart !== 'undefined') {
+                try {
+                    new Chart(unitCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['COGS & Pressing ($14)', 'Air Freight & Customs ($8)', 'Contribution Margin ($10)'],
+                            datasets: [{
+                                data: [14, 8, 10],
+                                backgroundColor: ['#1A0C06', '#0F5257', '#D4AF37']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { position: 'bottom', labels: { font: { size: 10, family: 'Inter' } } } }
+                        }
+                    });
+                } catch(e) {
+                    console.error("Chart 1 note:", e);
+                }
             }
 
             // Chart 2: Cadmium Level
-            const cadmiumCtx = document.getElementById('cadmiumChart');
-            if (cadmiumCtx) {
-                new Chart(cadmiumCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Strict EU Limit', 'VietCraft Measured'],
-                        datasets: [{
-                            label: 'Cadmium Level (mg/kg)',
-                            data: [0.10, 0.042],
-                            backgroundColor: ['#EF4444', '#10B981']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, max: 0.12 } }
-                    }
-                });
+            var cadmiumCtx = document.getElementById('cadmiumChart');
+            if (cadmiumCtx && typeof Chart !== 'undefined') {
+                try {
+                    new Chart(cadmiumCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Strict EU Limit', 'VietCraft Measured'],
+                            datasets: [{
+                                label: 'Cadmium Level (mg/kg)',
+                                data: [0.10, 0.042],
+                                backgroundColor: ['#EF4444', '#10B981']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true, max: 0.12 } }
+                        }
+                    });
+                } catch(e) {
+                    console.error("Chart 2 note:", e);
+                }
             }
         });
     </script>
